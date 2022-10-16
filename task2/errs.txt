@@ -1,6 +1,6 @@
-abs_err_1 19.8977
-abs_err_2 6.46986
-abs_err_cheb 0.624675
-rel_err_1 0.320047
-rel_err_2 0.134665
-rel_err_cheb 0.624675
+abs_err_1 30.2637
+abs_err_2 4.37265
+abs_err_c 0.256344
+rel_err_1 0.163258
+rel_err_2 0.0304802
+rel_err_c 0.256344

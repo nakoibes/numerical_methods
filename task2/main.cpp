@@ -207,10 +207,10 @@ void write_errs(double abs_err_1, double abs_err_2, double abs_err_cheb,
     ofstream fout("errs.txt");
     fout << "abs_err_1 " << abs_err_1 << endl;
     fout << "abs_err_2 " << abs_err_2 << endl;
-    fout << "abs_err_cheb " << abs_err_cheb << endl;
+    fout << "abs_err_c " << abs_err_cheb << endl;
     fout << "rel_err_1 " << rel_err_1 << endl;
     fout << "rel_err_2 " << rel_err_2 << endl;
-    fout << "rel_err_cheb " << abs_err_cheb << endl;
+    fout << "rel_err_c " << abs_err_cheb << endl;
     fout.close();
 }
 
@@ -220,8 +220,8 @@ int main() {
     double a = -10;
     double b = 10;
 
-    int k = 2;
-    int n = 5;
+    int k = 3;
+    int n = 4;
     int n_repr = 2000;
 
     int m = n * k + 1;
@@ -229,8 +229,8 @@ int main() {
     double int_len = (b - a) / k;
     double h = int_len / n;
 
-    double h_err = h / 10;
-    int n_err = (int) ((b - a) / h_err) + 1;
+//    double h_err = h / 10;
+    int n_err = 100*k+1;//
 
     double **int_args = new double *[k];
     for (int i = 0; i < k; i++) {
