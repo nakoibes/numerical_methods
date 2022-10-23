@@ -6,7 +6,7 @@
 using namespace std;
 
 double func(double x) {
-    return sin(x);
+    return pow(x,4)+pow(x,2)+3;
 }
 
 void f_inter_args(double **args, int len_1, int len_2, double a, double step) {
@@ -221,7 +221,7 @@ int main() {
     double b = 10;
 
     int k = 3;
-    int n = 4;
+    int n = 5;
     int n_repr = 2000;
 
     int m = n * k + 1;
@@ -281,7 +281,7 @@ int main() {
     write_errs(abs_err_1, abs_err_2, abs_err_cheb, rel_err_1, rel_err_2, rel_err_cheb);
     write_f(repr_args, repr_vals, res_int_args, res_int_vals, func, m, n_repr);
 
-    system("python3 repr.py");
+    system("python repr.py");
 
     for (int i = 0; i < k; i++) {
         delete[] int_args[i];

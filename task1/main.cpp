@@ -6,7 +6,7 @@
 using namespace std;
 
 double func(double x) {
-    return pow(x,3)+3;
+    return sin(x);
 }
 
 double random(double min, double max) {
@@ -210,6 +210,6 @@ int main() {
     fill_func(func, y, repr_args, n_inter, n_repr);
 
     write_f(repr_args, repr_vals, inter_args, inter_vals, func, n_inter, n_repr);
-    system("python3 repr.py");
+    system("python repr.py");
     return 0;
 }
