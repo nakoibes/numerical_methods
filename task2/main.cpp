@@ -281,7 +281,7 @@ int main() {
     write_errs(abs_err_1, abs_err_2, abs_err_cheb, rel_err_1, rel_err_2, rel_err_cheb);
     write_f(repr_args, repr_vals, res_int_args, res_int_vals, func, m, n_repr);
 
-    system("python repr.py");
+    system("python3 repr.py");
 
     for (int i = 0; i < k; i++) {
         delete[] int_args[i];

@@ -210,6 +210,6 @@ int main() {
     fill_func(func, y, repr_args, n_inter, n_repr);
 
     write_f(repr_args, repr_vals, inter_args, inter_vals, func, n_inter, n_repr);
-    system("python repr.py");
+    system("python3 repr.py");
     return 0;
 }
