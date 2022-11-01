@@ -17,7 +17,7 @@ double random(double min, double max) {
 
 double fi(double x, double *xi, int i, int len_xi) {
 
-    i = i % len_xi;
+//    i = i % len_xi;
     double result = 1;
     for (int j = 0; j < len_xi; j++) {
         if (j != i) {
@@ -39,37 +39,49 @@ void f_args(double **args, int len_1, int len_2, double a, double step) {
     }
 }
 
-void f_random_args(double **args, double *random_args, int k, int len2, int l) {
+void f_random_args(double **args, double **random_args, int k, int len2, int l) {
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < l; j++) {
-            random_args[i * l + j] = random(args[i][0], args[i][len2 - 1]);
+            random_args[i][j] = random(args[i][0], args[i][len2 - 1]);
         }
     }
 }
 
-MatrixXd f_A(MatrixXd A, double *random_args, double **args, int l, int m, int k, int n) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            if (i <= j) {
-                double value = 0;
-                for (int q = 0; q < l * k; q++) {
-                    value += (fi(random_args[q], args[i / n], i, n) * fi(random_args[q], args[j / n], j, n));
+MatrixXd f_A(MatrixXd A, double **random_args, double **args, int l, int m, int k, int n) {
+    for (int i1 = 0; i1 < k; i1++) {
+        for (int j1 = 0; j1 < n; j1++) {
+//            for (int i2 = 0; i2 < k; i2++) {
+            for (int j2 = 0; j2 < n; j2++) {
+                if ((i1 * (n - 1) + j1) <= (i1 * (n - 1) + j2)) {
+                    for (int q = 0; q < l; q++) {
+                        A(i1 * (n - 1) + j1, i1 * (n - 1) + j2) +=
+                                fi(random_args[i1][q], args[i1], j1, n) * fi(random_args[i1][q], args[i1], j2, n);
+                    }
+                    A(i1 * (n - 1) + j2, i1 * (n - 1) + j1) = A(i1 * (n - 1) + j1, i1 * (n - 1) + j2);
+//                        double value = 0;
+//                        for (int q = 0; q < l * k; q++) {
+//                            value += (fi(random_args[q], args[i / n], i, n) * fi(random_args[q], args[j / n], j, n));
+//                        }
+//                        A(i, j) = value;
+//                        A(j, i) = value;
                 }
-                A(i, j) = value;
-                A(j, i) = value;
+
             }
         }
     }
     return A;
 }
 
-VectorXd f_B(VectorXd B, function<double(double)> y, double *random_args, double **args, int l, int m, int k, int n) {
-    for (int i = 0; i < m; i++) {
-        double value = 0;
-        for (int j = 0; j < l * k; j++) {
-            value += (y(random_args[j]) * fi(random_args[j], args[i / n], i, n));
+VectorXd f_B(VectorXd B, function<double(double)> y, double **random_args, double **args, int l, int m, int k, int n) {
+    for (int i = 0; i < k; i++) {
+//        double value = 0;
+        for (int j = 0; j < n; j++) {
+            for (int q = 0; q < l; q++) {
+                B[i * (n - 1) + j] += (y(random_args[i][q]) * fi(random_args[i][q], args[i], j, n));
+//                value += (y(random_args[j]) * fi(random_args[j], args[i / n], i, n));
+            }
         }
-        B[i] = value;
+//        B[i] = value;
     }
     return B;
 }
@@ -83,15 +95,21 @@ void f_repr_args(double *repr_args, int n_repr, double a, double b) {
         repr_args[i] = repr_args[i - 1] + step;
     }
 }
-void f_repr_vals(MatrixXd X,double* repr_args,double* repr_vals,double** args,int n_repr,int m,int n){
-    for(int i = 0;i<n_repr;i++){
-        double value = 0;
-        for(int j = 0;j<m;j++){
-            value+=X(j)* fi(repr_args[i],args[j/n],j,n);
+
+void f_repr_vals(MatrixXd X, double *repr_args, double *repr_vals, double **args, int n_repr, int m, int n, int k) {
+    for (int i = 0; i < n_repr; i++) {
+//        double value = 0;
+        for (int j = 0; j < k; j++) {
+            if (repr_args[i] < args[j][n - 1] && repr_args[i] > args[j][0]) {
+                for (int q = 0; q < n; q++) {
+                    repr_vals[i] += X(j * (n - 1) + q) * fi(repr_args[i], args[j], q, n);
+                }
+            }
         }
-        repr_vals[i] = value;
+//        repr_vals[i] = value;
     }
 }
+
 void fill_func(double *func, function<double(double)> y, double *res_args, int n_repr) {
     for (int i = 0; i < n_repr; i++) {
         func[i] = y(res_args[i]);
@@ -122,31 +140,34 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
     }
     fout.close();
 }
-void f_knots(double* knots,double** args,int k,int n){
-    for(int i =0;i<k;i++){
-        for(int j = 0;j<n-1;j++){
-            knots[i*n+j] = args[i][j];
+
+void f_knots(double *knots, double **args, int k, int n) {
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < n - 1; j++) {
+            knots[i * n + j] = args[i][j];
         }
     }
 }
-void zeronize(double* array,int n){
-    for(int i = 0;i<n;i++){
+
+void zeronize(double *array, int n) {
+    for (int i = 0; i < n; i++) {
         array[i] = 0;
     }
 }
+
 int main() {
     srand((unsigned int) time(nullptr));
 
     function<double(double)> y = func;
 
-    double a = -3;
-    double b = 3;
+    double a = -4;
+    double b = 4;
 
     double delta = 0.0001;
 
     int n_repr = 2000;
     int k = 3;
-    int n = 10;
+    int n = 4;
     int m = (n - 1) * k + 1;
     int l = 5;
     double h = (b - a) / (k * (n - 1));
@@ -168,7 +189,12 @@ int main() {
 //        random_args[i] = new double[l];
 //    }
 
-    double random_args[l * k];
+//    double random_args[l * k];
+    double **random_args = new double *[k];
+    for (int i = 0; i < k; i++) {
+        random_args[i] = new double[l];
+    }
+
 
     MatrixXd A(m, m);
     A.setZero();
@@ -185,14 +211,16 @@ int main() {
     f_args(args, k, n, a, h);
     f_random_args(args, random_args, k, n, l);
     A = f_A(A, random_args, args, l, m, k, n);
-    B = f_B(B, y, random_args, args, l, m, l, n);
+//    cout << A << endl;
+    B = f_B(B, y, random_args, args, l, m, k, n);
     X = A.colPivHouseholderQr().solve(B);
     f_repr_args(repr_args, n_repr, a, b);
-    f_repr_vals(X,repr_args,repr_vals,args,n_repr,m,n);
+    f_repr_vals(X, repr_args, repr_vals, args, n_repr, m, n, k);
     fill_func(func, y, repr_args, n_repr);
-    f_repr_args(knots,m,a,b);
-    zeronize(knots_vals,m);
-    write_f(repr_args,repr_vals,knots,knots_vals,func,m,n_repr);
+    f_repr_args(knots, m, a, b);
+    zeronize(knots_vals, m);
+    write_f(repr_args, repr_vals, knots, knots_vals, func, m, n_repr);
+    system("python3 repr.py");
 
 //    cout << X;
 //    MatrixXd T(2, 2);
