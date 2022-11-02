@@ -105,8 +105,8 @@ void f_res_int(double *res_int_args, double *res_int_vals, double **int_args, do
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, int n_inter,
-             int n_res) {
+void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func,double* div_knots, int n_inter,
+             int n_res,int k) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_res; i++) {
         fout << res_args[i] << " ";
@@ -122,6 +122,10 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
     fout << endl;
     for (int i = 0; i < n_inter; i++) {
         fout << inter_vals[i] << " ";
+    }
+    fout << endl;
+    for (int i = 0; i < k+1; i++) {
+        fout << div_knots[i] << " ";
     }
     fout << endl;
     for (int i = 0; i < n_res; i++) {
@@ -214,6 +218,13 @@ void write_errs(double abs_err_1, double abs_err_2, double abs_err_cheb,
     fout.close();
 }
 
+void f_div_knots(double* div_knots,double** args,int k,int n){
+    div_knots[0] = args[0][0];
+    for(int i = 0;i<k;i++){
+        div_knots[i+1] = args[i][n];
+    }
+}
+
 int main() {
     function<double(double)> y = func;
 
@@ -229,8 +240,8 @@ int main() {
     double int_len = (b - a) / k;
     double h = int_len / n;
 
-//    double h_err = h / 10;
-    int n_err = 100*k+1;//
+
+    int n_err = 100*k+1;
 
     double **int_args = new double *[k];
     for (int i = 0; i < k; i++) {
@@ -251,6 +262,8 @@ int main() {
     double err_args[n_err];
     double err_vals[n_err];
 
+    double div_knots[k+1];
+
     double abs_err_1;
     double abs_err_2;
     double abs_err_cheb;
@@ -260,6 +273,7 @@ int main() {
 
 
     f_inter_args(int_args, k, n + 1, a, h);
+    f_div_knots(div_knots, int_args,k,n);
     f_inter_vals(int_args, int_vals, y, k, n + 1);
     f_repr_args(repr_args, n_repr, a, b);
     f_repr_vals(repr_vals, repr_args, int_vals, int_args, n_repr, k, n + 1);
@@ -279,7 +293,7 @@ int main() {
     rel_err_cheb = calc_rel_err_cheb(err_func, err_vals, n_err);
 
     write_errs(abs_err_1, abs_err_2, abs_err_cheb, rel_err_1, rel_err_2, rel_err_cheb);
-    write_f(repr_args, repr_vals, res_int_args, res_int_vals, func, m, n_repr);
+    write_f(repr_args, repr_vals, res_int_args, res_int_vals, func,div_knots, m, n_repr,k);
 
     system("python3 repr.py");
 
