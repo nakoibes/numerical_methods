@@ -97,16 +97,15 @@ void f_repr_args(double *repr_args, int n_repr, double a, double b) {
 }
 
 void f_repr_vals(MatrixXd X, double *repr_args, double *repr_vals, double **args, int n_repr, int m, int n, int k) {
+    double eps = 0.00001;
     for (int i = 0; i < n_repr; i++) {
-//        double value = 0;
         for (int j = 0; j < k; j++) {
-            if (repr_args[i] < args[j][n - 1] && repr_args[i] > args[j][0]) {
+            if (repr_args[i]-args[j][n - 1] <= eps && repr_args[i]-args[j][0] >= eps) {
                 for (int q = 0; q < n; q++) {
                     repr_vals[i] += X(j * (n - 1) + q) * fi(repr_args[i], args[j], q, n);
                 }
             }
         }
-//        repr_vals[i] = value;
     }
 }
 
@@ -116,8 +115,9 @@ void fill_func(double *func, function<double(double)> y, double *res_args, int n
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, int n_inter,
-             int n_res) {
+void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
+        int n_inter,
+        int n_res, int k) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_res; i++) {
         fout << res_args[i] << " ";
@@ -135,6 +135,10 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
         fout << inter_vals[i] << " ";
     }
     fout << endl;
+    for (int i = 0; i < k + 1; i++) {
+        fout << div_knots[i] << " ";
+    }
+    fout << endl;
     for (int i = 0; i < n_res; i++) {
         fout << func[i] << " ";
     }
@@ -149,29 +153,135 @@ void f_knots(double *knots, double **args, int k, int n) {
     }
 }
 
+void f_div_knots(double *div_knots, double **args, int k, int n) {
+    div_knots[0] = args[0][0];
+    for (int i = 0; i < k; i++) {
+        div_knots[i + 1] = args[i][n-1];
+    }
+}
+
 void zeronize(double *array, int n) {
     for (int i = 0; i < n; i++) {
         array[i] = 0;
     }
 }
+void f_random_args_err(double** args, double* random_args,int k, int l){
+    for(int i = 0;i<k;i++){
+        for(int j = 0;j<l;j++) {
+            random_args[i*l + j] = args[i][j];
+        }
+    }
+}
 
+double calc_abs_err_1(double *func, double *inter, int n_err) {
+    double result = 0;
+    for (int i = 0; i < n_err; i++) {
+        result += abs(func[i] - inter[i]);
+    }
+    return result;
+}
+
+double calc_abs_err_2(double *func, double *inter, int n_err) {
+    double result = 0;
+    for (int i = 0; i < n_err; i++) {
+        result += pow(abs(func[i] - inter[i]), 2);
+    }
+    return result;
+}
+
+double calc_abs_err_cheb(double *func, double *inter, int n_err) {
+    double result = 0;
+    for (int i = 0; i < n_err; i++) {
+        if (abs(func[i] - inter[i]) > result) {
+            result = abs(func[i] - inter[i]);
+        }
+    }
+    return result;
+}
+
+double calc_rel_err_1(double *func, double *inter, int n_err) {
+    double num = 0;
+    double den = 0;
+    for (int i = 0; i < n_err; i++) {
+        num += (abs(func[i] - inter[i]));
+    }
+    for (int i = 0; i < n_err; i++) {
+        den += abs(func[i]);
+    }
+    if(den == 0.0){
+        den = 1;
+    }
+    return num / den;
+}
+
+double calc_rel_err_2(double *func, double *inter, int n_err) {
+    double num = 0;
+    double den = 0;
+    for (int i = 0; i < n_err; i++) {
+        num += (pow(abs(func[i] - inter[i]), 2));
+    }
+    for (int i = 0; i < n_err; i++) {
+        den += pow(func[i], 2);
+    }
+    if(den == 0.0){
+        den = 1;
+    }
+    return num / den;
+}
+
+double calc_rel_err_cheb(double *func, double *inter, int n_err) {
+    double num = 0;
+    double den = 0;
+    for (int i = 0; i < n_err; i++) {
+        if (abs(func[i] - inter[i]) > num) {
+            num = (abs(func[i] - inter[i]));
+        }
+    }
+    for (int i = 0; i < n_err; i++) {
+        if (abs(func[i] - inter[i]) > den) {
+            den = (abs(func[i]));
+        }
+    }
+    if(den == 0.0){
+        den = 1;
+    }
+    return num / den;
+}
+void write_errs(double* err_func,double* err_vals, int n_err,string filename) {
+    ofstream fout(filename);
+    fout << "abs_err_1 " << calc_abs_err_1(err_func, err_vals, n_err) << endl;
+    fout << "abs_err_2 " << calc_abs_err_2(err_func, err_vals, n_err) << endl;
+    fout << "abs_err_c " << calc_abs_err_cheb(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_1 " << calc_rel_err_1(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_2 " << calc_rel_err_2(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_c " << calc_rel_err_cheb(err_func, err_vals, n_err) << endl;
+    fout.close();
+}
+
+void f_even_args(double *args, int n, double a, double b) {
+    args[0] = a;
+    args[n - 1] = b;
+    double step = (b - a) / (n - 1);
+    for (int i = 1; i < n - 1; i++) {
+        args[i] = args[i - 1] + step;
+    }
+}
 int main() {
     srand((unsigned int) time(nullptr));
 
     function<double(double)> y = func;
 
-    double a = -4;
-    double b = 4;
+    double a = -5;
+    double b = 5;
 
-    double delta = 0.0001;
 
     int n_repr = 2000;
-    int k = 3;
+    int k = 2;
     int n = 4;
     int m = (n - 1) * k + 1;
-    int l = 5;
+    int l = 8;
     double h = (b - a) / (k * (n - 1));
-//    double h_repr = (b-a)/(n_repr-1)
+    int n_err = 100*(m-1);
 
 
     double **args = new double *[k];
@@ -179,22 +289,25 @@ int main() {
         args[i] = new double[n];
     }
 
+    double div_knots[k + 1];
+
     double knots[m];
     double knots_vals[m];
     double func[n_repr];
     double repr_args[n_repr];
     double repr_vals[n_repr];
-//    double **random_args = new double *[k];
-//    for (int i = 0; i < k; i++) {
-//        random_args[i] = new double[l];
-//    }
 
-//    double random_args[l * k];
     double **random_args = new double *[k];
     for (int i = 0; i < k; i++) {
         random_args[i] = new double[l];
     }
+    double err_args_rand[l * k];
+    double err_func_rand[l*k];
+    double err_vals_rand[l*k];
 
+    double err_args[n_err];
+    double err_func[n_err];
+    double err_vals[n_err];
 
     MatrixXd A(m, m);
     A.setZero();
@@ -209,47 +322,42 @@ int main() {
     B.setZero();
 
     f_args(args, k, n, a, h);
+    f_div_knots(div_knots, args, k, n);
+
     f_random_args(args, random_args, k, n, l);
+
     A = f_A(A, random_args, args, l, m, k, n);
-//    cout << A << endl;
     B = f_B(B, y, random_args, args, l, m, k, n);
     X = A.colPivHouseholderQr().solve(B);
+
     f_repr_args(repr_args, n_repr, a, b);
     f_repr_vals(X, repr_args, repr_vals, args, n_repr, m, n, k);
+
     fill_func(func, y, repr_args, n_repr);
+
     f_repr_args(knots, m, a, b);
     zeronize(knots_vals, m);
-    write_f(repr_args, repr_vals, knots, knots_vals, func, m, n_repr);
+
+    f_random_args_err(random_args, err_args_rand, k, l);
+    fill_func(err_func_rand, y, err_args_rand, l * k);
+    f_repr_vals(X, err_args_rand, err_vals_rand, args, l * k, m, n, k);
+
+    f_even_args(err_args,n_err,a,b);
+    fill_func(err_func, y, err_args, n_err);
+    f_repr_vals(X, err_args, err_vals, args, l * k, m, n, k);
+
+    write_errs(err_func_rand,err_vals_rand,l*k,"rand_errs.txt");
+    write_errs(err_func,err_vals,n_err,"errs.txt");
+
+    write_f(repr_args, repr_vals, knots, knots_vals, func,div_knots, m, n_repr,k);
+
     system("python3 repr.py");
 
-//    cout << X;
-//    MatrixXd T(2, 2);
-//    T(0,0) = 2;
-//    T(0,1) = 2;
-//    T(1,0) = 1;
-//    T(1,1) = 2;
-//    VectorXd U(2);
-//    VectorXd R(2);
-//    U(0) = 2;
-//    U(1) = 3;
-//    R = T.colPivHouseholderQr().solve(U);
-//    cout << R;
 
     for (int i = 0; i < k; i++) {
         delete[] args[i];
     }
     delete[] args;
-
-
-//    for (int i = 0; i < m; i++) {
-//        delete[] A[i];
-//    }
-//    delete[] A;
-
-//    for (int i = 0; i < k; i++) {
-//        delete[] random_args[i];
-//    }
-//    delete[] random_args;
 
     return 0;
 }
