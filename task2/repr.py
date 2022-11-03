@@ -15,7 +15,7 @@ if __name__ == '__main__':
     plt.plot(res_args, res_vals, color="blue", linewidth=1, label='Approximation')
     plt.plot(res_args, func, color="orange", linewidth=0.5, label='Function')
     plt.scatter(inter_args, inter_vals, color="red", s=10, marker="o", label='Knots')
-    plt.scatter(div_knots, [0]*len(div_knots), color="green", s=10, marker="o", label='Knots')
+    plt.scatter(div_knots, [0]*len(div_knots), color="green", s=10, marker="o", label='Div knots')
     plt.legend()
     plt.grid()
     plt.show()

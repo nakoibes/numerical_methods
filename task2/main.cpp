@@ -6,7 +6,7 @@
 using namespace std;
 
 double func(double x) {
-    return pow(x,4)+pow(x,2)+3;
+    return sin(x);
 }
 
 void f_inter_args(double **args, int len_1, int len_2, double a, double step) {
@@ -175,6 +175,9 @@ double calc_rel_err_1(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         den += abs(func[i]);
     }
+    if(den == 0.0){
+        den = 1;
+    }
     return num / den;
 }
 
@@ -186,6 +189,9 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
     }
     for (int i = 0; i < n_err; i++) {
         den += pow(func[i], 2);
+    }
+    if(den == 0.0){
+        den = 1;
     }
     return num / den;
 }
@@ -203,18 +209,20 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
             den = (abs(func[i]));
         }
     }
+    if(den == 0.0){
+        den = 1;
+    }
     return num / den;
 }
 
-void write_errs(double abs_err_1, double abs_err_2, double abs_err_cheb,
-                double rel_err_1, double rel_err_2, double rel_err_cheb) {
+void write_errs(double* err_func,double* err_vals,int n_err) {
     ofstream fout("errs.txt");
-    fout << "abs_err_1 " << abs_err_1 << endl;
-    fout << "abs_err_2 " << abs_err_2 << endl;
-    fout << "abs_err_c " << abs_err_cheb << endl;
-    fout << "rel_err_1 " << rel_err_1 << endl;
-    fout << "rel_err_2 " << rel_err_2 << endl;
-    fout << "rel_err_c " << abs_err_cheb << endl;
+    fout << "abs_err_1 " << calc_abs_err_1(err_func, err_vals, n_err) << endl;
+    fout << "abs_err_2 " << calc_abs_err_2(err_func, err_vals, n_err) << endl;
+    fout << "abs_err_c " << calc_abs_err_cheb(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_1 " << calc_rel_err_1(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_2 " << calc_rel_err_2(err_func, err_vals, n_err) << endl;
+    fout << "rel_err_c " << calc_rel_err_cheb(err_func, err_vals, n_err) << endl;
     fout.close();
 }
 
@@ -228,8 +236,8 @@ void f_div_knots(double* div_knots,double** args,int k,int n){
 int main() {
     function<double(double)> y = func;
 
-    double a = -10;
-    double b = 10;
+    double a = -4;
+    double b = 4;
 
     int k = 3;
     int n = 5;
@@ -285,14 +293,7 @@ int main() {
     fill_func(err_func, y, err_args, n_err);
     f_repr_vals(err_vals, err_args, int_vals, int_args, n_err, k, n + 1);
 
-    abs_err_1 = calc_abs_err_1(err_func, err_vals, n_err);
-    abs_err_2 = calc_abs_err_2(err_func, err_vals, n_err);
-    abs_err_cheb = calc_abs_err_cheb(err_func, err_vals, n_err);
-    rel_err_1 = calc_rel_err_1(err_func, err_vals, n_err);
-    rel_err_2 = calc_rel_err_2(err_func, err_vals, n_err);
-    rel_err_cheb = calc_rel_err_cheb(err_func, err_vals, n_err);
-
-    write_errs(abs_err_1, abs_err_2, abs_err_cheb, rel_err_1, rel_err_2, rel_err_cheb);
+    write_errs(err_func,err_vals,n_err);
     write_f(repr_args, repr_vals, res_int_args, res_int_vals, func,div_knots, m, n_repr,k);
 
     system("python3 repr.py");
