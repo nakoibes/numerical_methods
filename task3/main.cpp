@@ -16,8 +16,6 @@ double random(double min, double max) {
 }
 
 double fi(double x, double *xi, int i, int len_xi) {
-
-//    i = i % len_xi;
     double result = 1;
     for (int j = 0; j < len_xi; j++) {
         if (j != i) {
@@ -48,24 +46,16 @@ void f_random_args(double **args, double **random_args, int k, int len2, int l) 
 }
 
 MatrixXd f_A(MatrixXd A, double **random_args, double **args, int l, int m, int k, int n) {
-    for (int i1 = 0; i1 < k; i1++) {
+    for (int i = 0; i < k; i++) {
         for (int j1 = 0; j1 < n; j1++) {
-//            for (int i2 = 0; i2 < k; i2++) {
             for (int j2 = 0; j2 < n; j2++) {
-                if ((i1 * (n - 1) + j1) <= (i1 * (n - 1) + j2)) {
+                if ((i * (n - 1) + j1) <= (i * (n - 1) + j2)) {
                     for (int q = 0; q < l; q++) {
-                        A(i1 * (n - 1) + j1, i1 * (n - 1) + j2) +=
-                                fi(random_args[i1][q], args[i1], j1, n) * fi(random_args[i1][q], args[i1], j2, n);
+                        A(i * (n - 1) + j1, i * (n - 1) + j2) +=
+                                fi(random_args[i][q], args[i], j1, n) * fi(random_args[i][q], args[i], j2, n);
                     }
-                    A(i1 * (n - 1) + j2, i1 * (n - 1) + j1) = A(i1 * (n - 1) + j1, i1 * (n - 1) + j2);
-//                        double value = 0;
-//                        for (int q = 0; q < l * k; q++) {
-//                            value += (fi(random_args[q], args[i / n], i, n) * fi(random_args[q], args[j / n], j, n));
-//                        }
-//                        A(i, j) = value;
-//                        A(j, i) = value;
+                    A(i * (n - 1) + j2, i * (n - 1) + j1) = A(i * (n - 1) + j1, i * (n - 1) + j2);
                 }
-
             }
         }
     }
@@ -74,14 +64,11 @@ MatrixXd f_A(MatrixXd A, double **random_args, double **args, int l, int m, int 
 
 VectorXd f_B(VectorXd B, function<double(double)> y, double **random_args, double **args, int l, int m, int k, int n) {
     for (int i = 0; i < k; i++) {
-//        double value = 0;
         for (int j = 0; j < n; j++) {
             for (int q = 0; q < l; q++) {
                 B[i * (n - 1) + j] += (y(random_args[i][q]) * fi(random_args[i][q], args[i], j, n));
-//                value += (y(random_args[j]) * fi(random_args[j], args[i / n], i, n));
             }
         }
-//        B[i] = value;
     }
     return B;
 }
@@ -100,7 +87,7 @@ void f_repr_vals(MatrixXd X, double *repr_args, double *repr_vals, double **args
     double eps = 0.00001;
     for (int i = 0; i < n_repr; i++) {
         for (int j = 0; j < k; j++) {
-            if (repr_args[i]-args[j][n - 1] <= eps && repr_args[i]-args[j][0] >= eps) {
+            if (repr_args[i] - args[j][n - 1] <= eps && repr_args[i] - args[j][0] >= -eps) {
                 for (int q = 0; q < n; q++) {
                     repr_vals[i] += X(j * (n - 1) + q) * fi(repr_args[i], args[j], q, n);
                 }
@@ -115,7 +102,8 @@ void fill_func(double *func, function<double(double)> y, double *res_args, int n
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
+void
+write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
         int n_inter,
         int n_res, int k) {
     ofstream fout("dots.txt");
@@ -145,18 +133,10 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
     fout.close();
 }
 
-void f_knots(double *knots, double **args, int k, int n) {
-    for (int i = 0; i < k; i++) {
-        for (int j = 0; j < n - 1; j++) {
-            knots[i * n + j] = args[i][j];
-        }
-    }
-}
-
 void f_div_knots(double *div_knots, double **args, int k, int n) {
     div_knots[0] = args[0][0];
     for (int i = 0; i < k; i++) {
-        div_knots[i + 1] = args[i][n-1];
+        div_knots[i + 1] = args[i][n - 1];
     }
 }
 
@@ -165,10 +145,11 @@ void zeronize(double *array, int n) {
         array[i] = 0;
     }
 }
-void f_random_args_err(double** args, double* random_args,int k, int l){
-    for(int i = 0;i<k;i++){
-        for(int j = 0;j<l;j++) {
-            random_args[i*l + j] = args[i][j];
+
+void f_random_args_err(double **args, double *random_args, int k, int l) {
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < l; j++) {
+            random_args[i * l + j] = args[i][j];
         }
     }
 }
@@ -200,6 +181,7 @@ double calc_abs_err_cheb(double *func, double *inter, int n_err) {
 }
 
 double calc_rel_err_1(double *func, double *inter, int n_err) {
+    double eps = 0.000001;
     double num = 0;
     double den = 0;
     for (int i = 0; i < n_err; i++) {
@@ -208,13 +190,14 @@ double calc_rel_err_1(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         den += abs(func[i]);
     }
-    if(den == 0.0){
+    if (abs(den - 0.0) < eps) {
         den = 1;
     }
     return num / den;
 }
 
 double calc_rel_err_2(double *func, double *inter, int n_err) {
+    double eps = 0.000001;
     double num = 0;
     double den = 0;
     for (int i = 0; i < n_err; i++) {
@@ -223,13 +206,14 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         den += pow(func[i], 2);
     }
-    if(den == 0.0){
+    if (abs(den - 0.0) < eps) {
         den = 1;
     }
     return num / den;
 }
 
 double calc_rel_err_cheb(double *func, double *inter, int n_err) {
+    double eps = 0.000001;
     double num = 0;
     double den = 0;
     for (int i = 0; i < n_err; i++) {
@@ -242,12 +226,13 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
             den = (abs(func[i]));
         }
     }
-    if(den == 0.0){
+    if (abs(den - 0.0) < eps) {
         den = 1;
     }
     return num / den;
 }
-void write_errs(double* err_func,double* err_vals, int n_err,string filename) {
+
+void write_errs(double *err_func, double *err_vals, int n_err, string filename) {
     ofstream fout(filename);
     fout << "abs_err_1 " << calc_abs_err_1(err_func, err_vals, n_err) << endl;
     fout << "abs_err_2 " << calc_abs_err_2(err_func, err_vals, n_err) << endl;
@@ -266,22 +251,22 @@ void f_even_args(double *args, int n, double a, double b) {
         args[i] = args[i - 1] + step;
     }
 }
+
 int main() {
     srand((unsigned int) time(nullptr));
 
     function<double(double)> y = func;
 
-    double a = -5;
+    double a = -1;
     double b = 5;
-
 
     int n_repr = 2000;
     int k = 2;
-    int n = 4;
+    int n = 7;
     int m = (n - 1) * k + 1;
     int l = 8;
     double h = (b - a) / (k * (n - 1));
-    int n_err = 100*(m-1);
+    int n_err = 100 * (m - 1);
 
 
     double **args = new double *[k];
@@ -302,8 +287,8 @@ int main() {
         random_args[i] = new double[l];
     }
     double err_args_rand[l * k];
-    double err_func_rand[l*k];
-    double err_vals_rand[l*k];
+    double err_func_rand[l * k];
+    double err_vals_rand[l * k];
 
     double err_args[n_err];
     double err_func[n_err];
@@ -311,11 +296,6 @@ int main() {
 
     MatrixXd A(m, m);
     A.setZero();
-
-//    double **A = new double *[m];
-//    for (int i = 0; i < m; i++) {
-//        A[i] = new double[m];
-//    }
 
     VectorXd B(m);
     VectorXd X(m);
@@ -342,17 +322,16 @@ int main() {
     fill_func(err_func_rand, y, err_args_rand, l * k);
     f_repr_vals(X, err_args_rand, err_vals_rand, args, l * k, m, n, k);
 
-    f_even_args(err_args,n_err,a,b);
+    f_even_args(err_args, n_err, a, b);
     fill_func(err_func, y, err_args, n_err);
     f_repr_vals(X, err_args, err_vals, args, l * k, m, n, k);
 
-    write_errs(err_func_rand,err_vals_rand,l*k,"rand_errs.txt");
-    write_errs(err_func,err_vals,n_err,"errs.txt");
+    write_errs(err_func_rand, err_vals_rand, l * k, "rand_errs.txt");
+    write_errs(err_func, err_vals, n_err, "errs.txt");
 
-    write_f(repr_args, repr_vals, knots, knots_vals, func,div_knots, m, n_repr,k);
+    write_f(repr_args, repr_vals, knots, knots_vals, func, div_knots, m, n_repr, k);
 
     system("python3 repr.py");
-
 
     for (int i = 0; i < k; i++) {
         delete[] args[i];
