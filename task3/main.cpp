@@ -257,8 +257,8 @@ int main() {
 
     function<double(double)> y = func;
 
-    double a = -1;
-    double b = 5;
+    double a = -5.0;
+    double b = 5.0;
 
     int n_repr = 2000;
     int k = 2;
