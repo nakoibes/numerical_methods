@@ -102,8 +102,7 @@ void fill_func(double *func, function<double(double)> y, double *res_args, int n
     }
 }
 
-void
-write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
+void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
         int n_inter,
         int n_res, int k) {
     ofstream fout("dots.txt");
@@ -155,7 +154,7 @@ void f_random_args_err(double **args, double *random_args, int k, int l) {
 }
 
 double calc_abs_err_1(double *func, double *inter, int n_err) {
-    double result = 0;
+    double result = 0.0;
     for (int i = 0; i < n_err; i++) {
         result += abs(func[i] - inter[i]);
     }
@@ -163,7 +162,7 @@ double calc_abs_err_1(double *func, double *inter, int n_err) {
 }
 
 double calc_abs_err_2(double *func, double *inter, int n_err) {
-    double result = 0;
+    double result = 0.0;
     for (int i = 0; i < n_err; i++) {
         result += pow(abs(func[i] - inter[i]), 2);
     }
@@ -171,7 +170,7 @@ double calc_abs_err_2(double *func, double *inter, int n_err) {
 }
 
 double calc_abs_err_cheb(double *func, double *inter, int n_err) {
-    double result = 0;
+    double result = 0.0;
     for (int i = 0; i < n_err; i++) {
         if (abs(func[i] - inter[i]) > result) {
             result = abs(func[i] - inter[i]);
@@ -182,8 +181,8 @@ double calc_abs_err_cheb(double *func, double *inter, int n_err) {
 
 double calc_rel_err_1(double *func, double *inter, int n_err) {
     double eps = 0.000001;
-    double num = 0;
-    double den = 0;
+    double num = 0.0;
+    double den = 0.0;
     for (int i = 0; i < n_err; i++) {
         num += (abs(func[i] - inter[i]));
     }
@@ -191,15 +190,15 @@ double calc_rel_err_1(double *func, double *inter, int n_err) {
         den += abs(func[i]);
     }
     if (abs(den - 0.0) < eps) {
-        den = 1;
+        den = 1.0;
     }
     return num / den;
 }
 
 double calc_rel_err_2(double *func, double *inter, int n_err) {
     double eps = 0.000001;
-    double num = 0;
-    double den = 0;
+    double num = 0.0;
+    double den = 0.0;
     for (int i = 0; i < n_err; i++) {
         num += (pow(abs(func[i] - inter[i]), 2));
     }
@@ -207,27 +206,27 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
         den += pow(func[i], 2);
     }
     if (abs(den - 0.0) < eps) {
-        den = 1;
+        den = 1.0;
     }
     return num / den;
 }
 
 double calc_rel_err_cheb(double *func, double *inter, int n_err) {
     double eps = 0.000001;
-    double num = 0;
-    double den = 0;
+    double num = 0.0;
+    double den = 0.0;
     for (int i = 0; i < n_err; i++) {
         if (abs(func[i] - inter[i]) > num) {
             num = (abs(func[i] - inter[i]));
         }
     }
     for (int i = 0; i < n_err; i++) {
-        if (abs(func[i] - inter[i]) > den) {
+        if (abs(func[i]) > den) {
             den = (abs(func[i]));
         }
     }
     if (abs(den - 0.0) < eps) {
-        den = 1;
+        den = 1.0;
     }
     return num / den;
 }
