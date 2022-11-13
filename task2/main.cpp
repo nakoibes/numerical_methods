@@ -205,7 +205,7 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
         }
     }
     for (int i = 0; i < n_err; i++) {
-        if (abs(func[i] - inter[i]) > den) {
+        if (abs(func[i]) > den) {
             den = (abs(func[i]));
         }
     }
