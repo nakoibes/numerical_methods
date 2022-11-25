@@ -249,7 +249,8 @@ int main() {
     double h = int_len / n;
 
 
-    int n_err = 100*k+1;
+//    int n_err = 100*k+1;
+    int n_err = 100*m-99;//right
 
     double **int_args = new double *[k];
     for (int i = 0; i < k; i++) {
