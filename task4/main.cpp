@@ -32,25 +32,25 @@ void fill_func(double *func, function<double(double)> y, double *args, int n) {
 void differentiate(double *vals, double *der, int n, double h) {
     der[0] = (-3 * vals[0] + 4 * vals[1] - vals[2]) / (2 * h);
     der[n - 1] = (vals[n - 3] - 4 * vals[n - 2] + 3 * vals[n - 1]) / (2 * h);
-    for (int i = 1; i < n - 2; i++) {
+    for (int i = 1; i < n - 1; i++) {
         der[i] = (vals[i + 1] - vals[i - 1]) / (2 * h);
     }
 }
 
 void calc_main_err(double *main_err, double *der1, double *der2, int m1, int m2) {
-    int j = 0;
-    for (int i = 0; i < m1; i++) {
-        main_err[i] = (der2[j] - der1[i]) / 3;
-        j += 2;
+//    int j = 0;
+    for (int i = 0; i < m1; i+=1) {
+        main_err[i] = (der1[i] - der2[2*i]) / (0.5 * 0.5 - 1);
+//        j += 1;
     }
 
 }
 
 void calc_runge(double *runge, double *main_err, double *der, int n) {
-    int j = 0;
+//    int j = 0;
     for (int i = 0; i < n; i++) {
-        runge[i] = der[j] + main_err[i];
-        j += 2;
+        runge[i] = der[i] + main_err[i];
+//        j += 1;
     }
 }
 
@@ -136,7 +136,8 @@ void write_errs1(double *err_func1, double *err_vals1, int n_err1,
                  double *err_func2, double *err_vals2, int n_err2,
                  double *err_vals3, string filename) {
     ofstream fout(filename);
-
+    fout << fixed;
+    fout.precision(6);
     fout << setw(15) << left << "error"
          << setw(15) << left << "step h"
          << setw(15) << left << "step h/2"
@@ -144,7 +145,7 @@ void write_errs1(double *err_func1, double *err_vals1, int n_err1,
          << endl;
 
     fout << setw(15) << left << "abs_err_1"
-         << setw(15) << left << calc_abs_err_1(err_func1, err_vals1, n_err1)
+         << setw(15) << left << scientific << calc_abs_err_1(err_func1, err_vals1, n_err1)
          << setw(15) << left << calc_abs_err_1(err_func2, err_vals2, n_err2)
          << setw(15) << left << calc_abs_err_1(err_func1, err_vals3, n_err1)
          << endl;
@@ -188,7 +189,9 @@ void write_errs2(double *err_func, double *err_vals1, double *err_vals2, double 
     for (int i = 0; i < n; i++) {
         main += abs(err_vals1[i]);
     }
-    fout << setw(15) << left << "main err"
+    fout << fixed;
+    fout.precision(6);
+    fout << setw(15) << left << scientific << "main err"
          << setw(15) << left << "abs err_1"
          << setw(15) << left << "abs err_2"
          << setw(15) << left << "abs err_c"
@@ -204,7 +207,7 @@ void write_errs2(double *err_func, double *err_vals1, double *err_vals2, double 
 
 void
 write_f(double *f_args, double *f_vals, double *a1_args, double *a1_vals, double *a2_args, double *a2_vals,
-        double *ar_args, double *ar_vals, int n1,int n2, int n_viz) {
+        double *ar_args, double *ar_vals, int n1, int n2, int n_viz) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_viz; i++) {
         fout << f_args[i] << " ";
@@ -263,7 +266,7 @@ int main() {
     double args2[m2];
     double vals2[m2];
     double d_vals2[m2];
-    double der2[m1];
+    double der2[m2];
     double viz_args[m_viz];
     double viz_vals[m_viz];
 
@@ -281,12 +284,12 @@ int main() {
     differentiate(vals1, der1, m1, h1);
     differentiate(vals2, der2, m2, h2);
     calc_main_err(main_err, der1, der2, m1, m2);
-    calc_runge(runge, main_err, der2, m1);
+    calc_runge(runge, main_err, der1, m1);
 
     write_errs1(d_vals1, der1, m1, d_vals2, der2, m2, runge, "errs1");
     write_errs2(d_vals1, main_err, der1, args1, m1, "errs2");
 
-    write_f(viz_args,viz_vals,args1,der1,args2,der2,args1,runge,m1,m2,m_viz);
+    write_f(viz_args, viz_vals, args1, der1, args2, der2, args1, runge, m1, m2, m_viz);
 
     system("python3 repr.py");
 
