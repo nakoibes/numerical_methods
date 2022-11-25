@@ -83,7 +83,7 @@ void f_repr_args(double *repr_args, int n_repr, double a, double b) {
     }
 }
 
-void f_repr_vals(MatrixXd X, double *repr_args, double *repr_vals, double **args, int n_repr, int m, int n, int k) {
+void f_repr_vals(MatrixXd X, double *repr_args, double *repr_vals, double **args, int n_repr, int n, int k) {
     double eps = 0.00001;
     for (int i = 0; i < n_repr; i++) {
         for (int j = 0; j < k; j++) {
@@ -261,11 +261,11 @@ int main() {
 
     int n_repr = 2000;
     int k = 2;
-    int n = 7;
+    int n = 6;
     int m = (n - 1) * k + 1;
     int l = 8;
     double h = (b - a) / (k * (n - 1));
-    int n_err = 100 * (m - 1);
+    int n_err = 100 * (m - 1)+1;
 
 
     double **args = new double *[k];
@@ -310,7 +310,7 @@ int main() {
     X = A.colPivHouseholderQr().solve(B);
 
     f_repr_args(repr_args, n_repr, a, b);
-    f_repr_vals(X, repr_args, repr_vals, args, n_repr, m, n, k);
+    f_repr_vals(X, repr_args, repr_vals, args, n_repr, n, k);
 
     fill_func(func, y, repr_args, n_repr);
 
@@ -319,11 +319,11 @@ int main() {
 
     f_random_args_err(random_args, err_args_rand, k, l);
     fill_func(err_func_rand, y, err_args_rand, l * k);
-    f_repr_vals(X, err_args_rand, err_vals_rand, args, l * k, m, n, k);
+    f_repr_vals(X, err_args_rand, err_vals_rand, args, l * k, n, k);
 
     f_even_args(err_args, n_err, a, b);
     fill_func(err_func, y, err_args, n_err);
-    f_repr_vals(X, err_args, err_vals, args, l * k, m, n, k);
+    f_repr_vals(X, err_args, err_vals, args, n_err, n, k);
 
     write_errs(err_func_rand, err_vals_rand, l * k, "rand_errs.txt");
     write_errs(err_func, err_vals, n_err, "errs.txt");
