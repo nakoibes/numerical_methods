@@ -45,7 +45,7 @@ void f_random_args(double **args, double **random_args, int k, int len2, int l) 
     }
 }
 
-MatrixXd f_A(MatrixXd A, double **random_args, double **args, int l, int m, int k, int n) {
+MatrixXd f_A(MatrixXd A, double **random_args, double **args, int l, int k, int n) {
     for (int i = 0; i < k; i++) {
         for (int j1 = 0; j1 < n; j1++) {
             for (int j2 = 0; j2 < n; j2++) {
@@ -102,7 +102,8 @@ void fill_func(double *func, function<double(double)> y, double *res_args, int n
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
+void
+write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, double *div_knots,
         int n_inter,
         int n_res, int k) {
     ofstream fout("dots.txt");
@@ -166,7 +167,7 @@ double calc_abs_err_2(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         result += pow(abs(func[i] - inter[i]), 2);
     }
-    return result;
+    return sqrt(result);
 }
 
 double calc_abs_err_cheb(double *func, double *inter, int n_err) {
@@ -208,7 +209,7 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
     if (abs(den - 0.0) < eps) {
         den = 1.0;
     }
-    return num / den;
+    return sqrt(num) / sqrt(den);
 }
 
 double calc_rel_err_cheb(double *func, double *inter, int n_err) {
@@ -233,7 +234,9 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
 
 void write_errs(double *err_func, double *err_vals, int n_err, string filename) {
     ofstream fout(filename);
-    fout << "abs_err_1 " << calc_abs_err_1(err_func, err_vals, n_err) << endl;
+    fout << fixed;
+    fout.precision(6);
+    fout << "abs_err_1 " << scientific << calc_abs_err_1(err_func, err_vals, n_err) << endl;
     fout << "abs_err_2 " << calc_abs_err_2(err_func, err_vals, n_err) << endl;
     fout << "abs_err_c " << calc_abs_err_cheb(err_func, err_vals, n_err) << endl;
     fout << "rel_err_1 " << calc_rel_err_1(err_func, err_vals, n_err) << endl;
@@ -256,16 +259,16 @@ int main() {
 
     function<double(double)> y = func;
 
-    double a = -5.0;
-    double b = 5.0;
+    double a = -7;
+    double b = 7;
 
     int n_repr = 2000;
-    int k = 2;
-    int n = 6;
+    int k = 3;
+    int n = 4;
     int m = (n - 1) * k + 1;
-    int l = 8;
+    int l = 15;
     double h = (b - a) / (k * (n - 1));
-    int n_err = 100 * (m - 1)+1;
+    int n_err = 100 * (m - 1) + 1;
 
 
     double **args = new double *[k];
@@ -305,7 +308,7 @@ int main() {
 
     f_random_args(args, random_args, k, n, l);
 
-    A = f_A(A, random_args, args, l, m, k, n);
+    A = f_A(A, random_args, args, l, k, n);
     B = f_B(B, y, random_args, args, l, m, k, n);
     X = A.colPivHouseholderQr().solve(B);
 
