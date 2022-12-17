@@ -38,8 +38,7 @@ void f_repr_args(double *repr_args, int n_repr, double a, double b) {
     }
 }
 
-void
-interpolate(double *repr_vals, double *repr_args, double *inter_vals, double *inter_args, int n_repr, int n_inter) {
+void interpolate(double *repr_vals, double *repr_args, double *inter_vals, double *inter_args, int n_repr, int n_inter) {
     for (int i = 0; i < n_repr; i++) {
         repr_vals[i] = 0;
     }
@@ -66,23 +65,19 @@ interpolate(double *repr_vals, double *repr_args, double *inter_vals, double *in
     }
 }
 
-void f_repr_vals(double *repr_vals, double *repr_args, double **inter_vals, double **inter_args, int n_repr, int len_1,
-                 int len_2) {
-    double eps = 0.0000001;
+void f_repr_vals(double *repr_vals, double *repr_args, double **inter_vals, double **inter_args, int n_repr, int len_1, int len_2) {
+    double eps = 0.000001;
     int start = 0;
     int end = 0;
-    int len = 0;
+    int len;
     for (int i = 0; i < len_1; i++) {
         double current = inter_args[i][len_2 - 1];
-        while (repr_args[end] + eps < current) {
+        while (current-repr_args[end] > eps) {
             end++;
-        }
-        if (i != len_1 - 1) {
-            end--;
         }
         len = end - start + 1;
         interpolate(&repr_vals[start], &repr_args[start], inter_vals[i], inter_args[i], len, len_2);
-        start = end + 1;
+        start = end;
     }
 }
 
@@ -96,7 +91,8 @@ void f_res_int(double *res_int_args, double *res_int_vals, double **int_args, do
                     res_int_vals[k] = int_vals[i][j];
                     k++;
                 }
-            } else {
+            }
+            else {
                 res_int_args[k] = int_args[i][j];
                 res_int_vals[k] = int_vals[i][j];
                 k++;
@@ -105,8 +101,8 @@ void f_res_int(double *res_int_args, double *res_int_vals, double **int_args, do
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func,double* div_knots, int n_inter,
-             int n_res,int k) {
+void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func,double* div_knots_args,double* div_knots_vals,
+             int n_inter, int n_res, int k) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_res; i++) {
         fout << res_args[i] << " ";
@@ -125,7 +121,11 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
     }
     fout << endl;
     for (int i = 0; i < k+1; i++) {
-        fout << div_knots[i] << " ";
+        fout << div_knots_args[i] << " ";
+    }
+    fout << endl;
+    for (int i = 0; i < k+1; i++) {
+        fout << div_knots_vals[i] << " ";
     }
     fout << endl;
     for (int i = 0; i < n_res; i++) {
@@ -153,7 +153,7 @@ double calc_abs_err_2(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         result += pow(abs(func[i] - inter[i]), 2);
     }
-    return result;
+    return sqrt(result);
 }
 
 double calc_abs_err_cheb(double *func, double *inter, int n_err) {
@@ -193,7 +193,7 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
     if(den == 0.0){
         den = 1;
     }
-    return num / den;
+    return sqrt(num)/sqrt(den);
 }
 
 double calc_rel_err_cheb(double *func, double *inter, int n_err) {
@@ -226,21 +226,27 @@ void write_errs(double* err_func,double* err_vals,int n_err) {
     fout.close();
 }
 
-void f_div_knots(double* div_knots,double** args,int k,int n){
+void f_div_knots_args(double* div_knots,double** args,int k,int n){
     div_knots[0] = args[0][0];
     for(int i = 0;i<k;i++){
         div_knots[i+1] = args[i][n];
+    }
+}
+void f_div_knots_vals(double* div_knots,double** vals,int k,int n){
+    div_knots[0] = vals[0][0];
+    for(int i = 0;i<k;i++){
+        div_knots[i+1] = vals[i][n];
     }
 }
 
 int main() {
     function<double(double)> y = func;
 
-    double a = -4;
-    double b = 4;
+    double a = 0.0;
+    double b = 8.0;
 
-    int k = 3;
-    int n = 5;
+    int k = 2;
+    int n = 5;//степень
     int n_repr = 2000;
 
     int m = n * k + 1;
@@ -248,8 +254,6 @@ int main() {
     double int_len = (b - a) / k;
     double h = int_len / n;
 
-
-//    int n_err = 100*k+1;
     int n_err = 100*m-99;//right
 
     double **int_args = new double *[k];
@@ -271,19 +275,13 @@ int main() {
     double err_args[n_err];
     double err_vals[n_err];
 
-    double div_knots[k+1];
-
-    double abs_err_1;
-    double abs_err_2;
-    double abs_err_cheb;
-    double rel_err_1;
-    double rel_err_2;
-    double rel_err_cheb;
-
+    double div_knots_args[k+1];
+    double div_knots_vals[k+1];
 
     f_inter_args(int_args, k, n + 1, a, h);
-    f_div_knots(div_knots, int_args,k,n);
+    f_div_knots_args(div_knots_args, int_args,k,n);
     f_inter_vals(int_args, int_vals, y, k, n + 1);
+    f_div_knots_vals(div_knots_vals, int_vals,k,n);
     f_repr_args(repr_args, n_repr, a, b);
     f_repr_vals(repr_vals, repr_args, int_vals, int_args, n_repr, k, n + 1);
     f_res_int(res_int_args, res_int_vals, int_args, int_vals, k, n + 1);
@@ -295,7 +293,7 @@ int main() {
     f_repr_vals(err_vals, err_args, int_vals, int_args, n_err, k, n + 1);
 
     write_errs(err_func,err_vals,n_err);
-    write_f(repr_args, repr_vals, res_int_args, res_int_vals, func,div_knots, m, n_repr,k);
+    write_f(repr_args, repr_vals, res_int_args, res_int_vals, func,div_knots_args,div_knots_vals, m, n_repr,k);
 
     system("python3 repr.py");
 
