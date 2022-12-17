@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iostream>
 #include <cmath>
 #include <fstream>
 #include <functional>
@@ -20,28 +19,21 @@ void f_even_args(double *args, int n, double a, double b) {
     }
 }
 
-double i_func(double a, double b) {
-    return -cos(b) + cos(a);
+double i_func(double x) {
+    return -cos(x);
 }
 
-//double rectangle(double* args, function<double(double)> y, double h, int n){
-//    double sum = y(args[0])/2+y(args[n-1])/2;
-//    for(int i=1;i<n-1;i++){
-//        sum+=y(args[i]);
-//    }
-//    return sum*h;
-//}
 double rectangle(double *args, function<double(double)> y, double h, int n) {
     double sum = 0;
     for (int i = 0; i < n - 1; i++) {
-        sum += y(args[i] + h / 2);
+        sum += y(args[i] + h / 2.0);
     }
     return sum * h;
 }
 
 double trapeze(double *args, function<double(double)> y, int n, double h) {
-    double sum = y(args[0]) / 2 + y(args[n - 1]) / 2;
-    for (int i = 1; i < n - 2; i++) {
+    double sum = y(args[0]) / 2.0 + y(args[n - 1]) / 2.0;
+    for (int i = 1; i < n - 1; i++) {
         sum += (y(args[i]));
     }
     return sum * h;
@@ -53,9 +45,9 @@ double simps(double *args, function<double(double)> y, int n, double len) {
         sum += 2 * y(args[i]);
     }
     for (int i = 0; i < n - 1; i++) {
-        sum += 4 * y(args[i] + len / 2);
+        sum += 4 * y(args[i] + len / 2.0);
     }
-    return sum * len / 6;
+    return sum * len / 6.0;
 }
 
 double newton_cotes(double *args, function<double(double)> y, int n, double len) {
@@ -65,7 +57,7 @@ double newton_cotes(double *args, function<double(double)> y, int n, double len)
         sum += (7 * y(args[i]) + 32 * y(args[i] + h) + 12 * y(args[i] + 2 * h) + 32 * y(args[i] + 3 * h) +
                 7 * y(args[i + 1]));
     }
-    return sum * 2 * h / 45;
+    return sum * 2.0 * h / 45.0;
 }
 
 double gauss(double *args, function<double(double)> y, int n, double len) {
@@ -73,16 +65,13 @@ double gauss(double *args, function<double(double)> y, int n, double len) {
     double c1 = 5.0 / 9.0;
     double c2 = 8.0 / 9.0;
     double c3 = 5.0 / 9.0;
-    double ksi1 = -sqrt(3 / 5);
-    double ksi3 = sqrt(3 / 5);
+    double ksi1 = -sqrt(3.0 / 5.0);
+    double ksi3 = sqrt(3.0 / 5.0);
     for (int i = 0; i < n - 1; i++) {
-//        cout << c1*y(len/2*ksi1+(args[i]+args[i+1])/2) << endl;
-//        cout << c2*y((args[i]+args[i+1])/2) << endl;
-//        cout << c3*y(len/2*ksi3+(args[i]+args[i+1])/2) << endl;
         sum += (c1 * y(len / 2 * ksi1 + (args[i] + args[i + 1]) / 2) + c2 * y((args[i] + args[i + 1]) / 2) +
                 c3 * y(len / 2 * ksi3 + (args[i] + args[i + 1]) / 2));
     }
-    return sum * len / 2;
+    return sum * len / 2.0;
 }
 
 void write_errs(double rectangle_h, double trapeze_h, double simps_h, double newton_cotes_h, double gauss_h,
@@ -92,38 +81,52 @@ void write_errs(double rectangle_h, double trapeze_h, double simps_h, double new
     fout << fixed;
     fout.precision(6);
     fout << setw(15) << left << scientific << "scheme"
+         << setw(15) << left << "h_integral"
+         << setw(15) << left << "h/2_integral"
          << setw(15) << left << "error h"
          << setw(15) << left << "error h/2"
+         << setw(15) << left << "integral"
          << endl;
     fout << setw(15) << left << "rectangle"
-         << setw(15) << left << (rectangle_h - integral) / integral
-         << setw(15) << left << (rectangle_h2 - integral) / integral
+         << setw(15) << left << rectangle_h
+         << setw(15) << left << rectangle_h2
+         << setw(15) << left << abs(rectangle_h - integral) / integral
+         << setw(15) << left << abs(rectangle_h2 - integral) / integral
+         << setw(15) << left << integral
          << endl;
     fout << setw(15) << left << "trapeze"
-         << setw(15) << left << (trapeze_h - integral) / integral
-         << setw(15) << left << (trapeze_h2 - integral) / integral
+         << setw(15) << left << trapeze_h
+         << setw(15) << left << trapeze_h2
+         << setw(15) << left << abs(trapeze_h - integral) / integral
+         << setw(15) << left << abs(trapeze_h2 - integral) / integral
          << endl;
     fout << setw(15) << left << "simpson"
-         << setw(15) << left << (simps_h - integral) / integral
-         << setw(15) << left << (simps_h2 - integral) / integral
+         << setw(15) << left << simps_h
+         << setw(15) << left << simps_h2
+         << setw(15) << left << abs(simps_h - integral) / integral
+         << setw(15) << left << abs(simps_h2 - integral) / integral
          << endl;
     fout << setw(15) << left << "newton_cotes"
-         << setw(15) << left << (newton_cotes_h - integral) / integral
-         << setw(15) << left << (newton_cotes_h2 - integral) / integral
+         << setw(15) << left << newton_cotes_h
+         << setw(15) << left << newton_cotes_h2
+         << setw(15) << left << abs(newton_cotes_h - integral) / integral
+         << setw(15) << left << abs(newton_cotes_h2 - integral) / integral
          << endl;
     fout << setw(15) << left << "gauss"
-         << setw(15) << left << (gauss_h - integral) / integral
-         << setw(15) << left << (gauss_h2 - integral) / integral
+         << setw(15) << left << gauss_h
+         << setw(15) << left << gauss_h2
+         << setw(15) << left << abs(gauss_h - integral) / integral
+         << setw(15) << left << abs(gauss_h2 - integral) / integral
          << endl;
 }
 
 int main() {
     function<double(double)> y = func;
 
-    double a = -3.14;
-    double b = 0;
+    double a = 0;
+    double b = 3;
 
-    int k = 3;
+    int k = 5;
     int m1 = k + 1;
     int m2 = 2 * k + 1;
 
@@ -149,7 +152,7 @@ int main() {
     double newton_cotes_h2 = newton_cotes(args2, y, m2, h2);
     double gauss_h2 = gauss(args2, y, m2, h2);
 
-    double internal = i_func(a, b);
+    double internal = i_func(b)- i_func(a);
 
     write_errs(rectangle_h, trapeze_h, simps_h, newton_cotes_h, gauss_h,
                rectangle_h2, trapeze_h2, simps_h2, newton_cotes_h2, gauss_h2, internal);
