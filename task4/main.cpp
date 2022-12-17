@@ -7,11 +7,11 @@
 using namespace std;
 
 double func(double x) {
-    return sin(x);
+    return x*x*x;
 }
 
 double d_func(double x) {
-    return cos(x);
+    return 3*x*x;
 }
 
 void f_even_args(double *args, int n, double a, double b) {
@@ -37,20 +37,15 @@ void differentiate(double *vals, double *der, int n, double h) {
     }
 }
 
-void calc_main_err(double *main_err, double *der1, double *der2, int m1, int m2) {
-//    int j = 0;
+void calc_main_err(double *main_err, double *der1, double *der2, int m1) {
     for (int i = 0; i < m1; i+=1) {
         main_err[i] = (der1[i] - der2[2*i]) / (0.5 * 0.5 - 1);
-//        j += 1;
     }
-
 }
 
 void calc_runge(double *runge, double *main_err, double *der, int n) {
-//    int j = 0;
     for (int i = 0; i < n; i++) {
         runge[i] = der[i] + main_err[i];
-//        j += 1;
     }
 }
 
@@ -67,7 +62,7 @@ double calc_abs_err_2(double *func, double *inter, int n_err) {
     for (int i = 0; i < n_err; i++) {
         result += pow(abs(func[i] - inter[i]), 2);
     }
-    return result;
+    return sqrt(result);
 }
 
 double calc_abs_err_cheb(double *func, double *inter, int n_err) {
@@ -109,7 +104,7 @@ double calc_rel_err_2(double *func, double *inter, int n_err) {
     if (abs(den - 0.0) < eps) {
         den = 1.0;
     }
-    return num / den;
+    return sqrt(num) / sqrt(den);
 }
 
 double calc_rel_err_cheb(double *func, double *inter, int n_err) {
@@ -134,7 +129,11 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
 
 void write_errs1(double *err_func1, double *err_vals1, int n_err1,
                  double *err_func2, double *err_vals2, int n_err2,
-                 double *err_vals3, string filename) {
+                 double *err_vals3,
+                 double* main_err,
+                 string filename) {
+    double zeros[n_err1];
+    for(int i=0;i<n_err1;i++){zeros[i] = 0.0;}
     ofstream fout(filename);
     fout << fixed;
     fout.precision(6);
@@ -142,24 +141,28 @@ void write_errs1(double *err_func1, double *err_vals1, int n_err1,
          << setw(15) << left << "step h"
          << setw(15) << left << "step h/2"
          << setw(15) << left << "runge"
+         << setw(15) << left << "main_err"
          << endl;
 
     fout << setw(15) << left << "abs_err_1"
          << setw(15) << left << scientific << calc_abs_err_1(err_func1, err_vals1, n_err1)
          << setw(15) << left << calc_abs_err_1(err_func2, err_vals2, n_err2)
          << setw(15) << left << calc_abs_err_1(err_func1, err_vals3, n_err1)
+         << setw(15) << left << calc_abs_err_1(zeros, main_err, n_err1)
          << endl;
 
     fout << setw(15) << left << "abs_err_2"
          << setw(15) << left << calc_abs_err_2(err_func1, err_vals1, n_err1)
          << setw(15) << left << calc_abs_err_2(err_func2, err_vals2, n_err2)
          << setw(15) << left << calc_abs_err_2(err_func1, err_vals3, n_err1)
+         << setw(15) << left << calc_abs_err_2(zeros, main_err, n_err1)
          << endl;
 
     fout << setw(15) << left << "abs_err_c"
          << setw(15) << left << calc_abs_err_cheb(err_func1, err_vals1, n_err1)
          << setw(15) << left << calc_abs_err_cheb(err_func2, err_vals2, n_err2)
          << setw(15) << left << calc_abs_err_cheb(err_func1, err_vals3, n_err1)
+         << setw(15) << left << calc_abs_err_cheb(zeros, main_err, n_err1)
          << endl;
 
     fout << setw(15) << left << "rel_err_1"
@@ -176,37 +179,14 @@ void write_errs1(double *err_func1, double *err_vals1, int n_err1,
 
     fout << setw(15) << left << "rel_err_c"
          << setw(15) << left << calc_rel_err_cheb(err_func1, err_vals1, n_err1)
-         << setw(15) << left << calc_rel_err_cheb(err_func1, err_vals3, n_err1)
+         << setw(15) << left << calc_rel_err_cheb(err_func2, err_vals2, n_err2)
          << setw(15) << left << calc_rel_err_cheb(err_func1, err_vals3, n_err1)
          << endl;
 
     fout.close();
 }
 
-void write_errs2(double *err_func, double *err_vals1, double *err_vals2, double *args, int n, string filename) {
-    ofstream fout(filename);
-    double main = 0;
-    for (int i = 0; i < n; i++) {
-        main += abs(err_vals1[i]);
-    }
-    fout << fixed;
-    fout.precision(6);
-    fout << setw(15) << left << scientific << "main err"
-         << setw(15) << left << "abs err_1"
-         << setw(15) << left << "abs err_2"
-         << setw(15) << left << "abs err_c"
-         << endl;
-
-    fout << setw(15) << left << main
-         << setw(15) << left << calc_abs_err_1(err_func, err_vals2, n)
-         << setw(15) << left << calc_abs_err_2(err_func, err_vals2, n)
-         << setw(15) << left << calc_abs_err_cheb(err_func, err_vals2, n)
-         << endl;
-
-}
-
-void
-write_f(double *f_args, double *f_vals, double *a1_args, double *a1_vals, double *a2_args, double *a2_vals,
+void write_f(double *f_args, double *f_vals, double *a1_args, double *a1_vals, double *a2_args, double *a2_vals,
         double *ar_args, double *ar_vals, int n1, int n2, int n_viz) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_viz; i++) {
@@ -248,11 +228,11 @@ int main() {
     function<double(double)> y = func;
     function<double(double)> d_y = d_func;
 
-    double a = -5.0;
-    double b = 5.0;
+    double a = 0;
+    double b = 5;
 
     int m_viz = 2000;
-    int m1 = 15;
+    int m1 = 11;
     int m2 = 2 * m1 - 1;
     double h1 = (b - a) / (m1 - 1);
     double h2 = (b - a) / (m2 - 1);
@@ -283,11 +263,10 @@ int main() {
 
     differentiate(vals1, der1, m1, h1);
     differentiate(vals2, der2, m2, h2);
-    calc_main_err(main_err, der1, der2, m1, m2);
+    calc_main_err(main_err, der1, der2, m1);
     calc_runge(runge, main_err, der1, m1);
 
-    write_errs1(d_vals1, der1, m1, d_vals2, der2, m2, runge, "errs1");
-    write_errs2(d_vals1, main_err, der1, args1, m1, "errs2");
+    write_errs1(d_vals1, der1, m1, d_vals2, der2, m2, runge,main_err, "errs1");
 
     write_f(viz_args, viz_vals, args1, der1, args2, der2, args1, runge, m1, m2, m_viz);
 
