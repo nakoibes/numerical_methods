@@ -217,7 +217,9 @@ double calc_rel_err_cheb(double *func, double *inter, int n_err) {
 
 void write_errs(double* err_func,double* err_vals,int n_err) {
     ofstream fout("errs.txt");
-    fout << "abs_err_1 " << calc_abs_err_1(err_func, err_vals, n_err) << endl;
+    fout << fixed;
+    fout.precision(6);
+    fout << "abs_err_1 " << scientific << calc_abs_err_1(err_func, err_vals, n_err) << endl;
     fout << "abs_err_2 " << calc_abs_err_2(err_func, err_vals, n_err) << endl;
     fout << "abs_err_c " << calc_abs_err_cheb(err_func, err_vals, n_err) << endl;
     fout << "rel_err_1 " << calc_rel_err_1(err_func, err_vals, n_err) << endl;
