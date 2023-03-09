@@ -106,15 +106,15 @@ void f_B(double *B, function<double(double)> y, double **random_args, double **a
     }
 }
 
-VectorXd f_B_E(double* B,int m){
+VectorXd f_B_E(double *B, int m) {
     VectorXd B_E(m);
-    for(int i =0;i<m;i++){
+    for (int i = 0; i < m; i++) {
         B_E(i) = B[i];
     }
     return B_E;
 }
 
-void gauss(double **A, double *B,double *X, int m, int n) {
+void gauss(double **A, double *B, double *X, int m, int n) {
     double eps = 0.0000001;
     for (int al = 0; al < m - 1; al++) {
         for (int be = 1; be < n; be++) {
@@ -164,8 +164,8 @@ void gauss(double **A, double *B,double *X, int m, int n) {
         }
     }
 
-    for(int i =0;i<m;i++){
-        X[i] = B[i]/A[0][i];
+    for (int i = 0; i < m; i++) {
+        X[i] = B[i] / A[0][i];
     }
 //for square matrix
 //    double eps = 0.0000001;
@@ -190,21 +190,21 @@ void gauss(double **A, double *B,double *X, int m, int n) {
 //    }
 }
 
-MatrixXd f_A_E(double** A,int m,int n){
-    MatrixXd A_E(m,m);
+MatrixXd f_A_E(double **A, int m, int n) {
+    MatrixXd A_E(m, m);
     A_E.setZero();
     for (int i = 0; i < 2 * n - 1; i++) {
         for (int j = 0; j < m; j++) {
 //            cout << A_E << endl;
             if (i < n) {
                 if (i + j < m) {
-                    A_E(j,i + j) = A[i][j];
+                    A_E(j, i + j) = A[i][j];
                 } else {
                     continue;
                 }
             } else {
-                if (i + j - n+1 < m) {
-                    A_E(i + j - n+1,j) = A[i][j];
+                if (i + j - n + 1 < m) {
+                    A_E(i + j - n + 1, j) = A[i][j];
                 } else {
                     continue;
                 }
@@ -214,10 +214,124 @@ MatrixXd f_A_E(double** A,int m,int n){
     return A_E;
 }
 
-void prep_L(double** L,int n,int m){
-    for(int i =0;i<m;i++){
+void prep_L(double **L, int m) {
+    for (int i = 0; i < m; i++) {
         L[0][i] = 1;
     }
+}
+
+void prep_L_test(double **L, int m) {
+    for (int i = 0; i < m; i++) {
+        L[i][i] = 1;
+    }
+}
+
+void LU_test(double **A, double **L, double **U, int m) {
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            if (i <= j) {
+                U[i][j] = A[i][j];
+                for (int k = 0; k < i; k++) {
+                    U[i][j] -= (L[i][k] * U[k][j]);
+                }
+            } else {
+                L[i][j] = A[i][j];
+                for (int k = 0; k < j; k++) {
+                    L[i][j] -= (L[i][k] * U[k][j]);
+                }
+                L[i][j] = L[i][j] / U[j][j];
+            }
+        }
+    }
+}
+
+
+void LU(double **A, double **L, double **U, int m, int n) {
+    for (int j = 0; j < m; j++) {
+        for (int i = 0; i < n; i++) {
+            U[i][j] = A[i][j];
+            int i_h = j;
+            int j_h = j + i;
+            int M;
+            if (i_h > j_h) {
+                M = i_h;
+            } else {
+                M = j_h;
+            }
+            int st = M - n + 1;
+            if (st < 0) {
+                st = 0;
+            }
+//            if (i_h < n && j_h <n) {
+            for (int k = st; k < i_h; k++) {
+                int i_l = i_h - k;
+                int j_l = k;
+                int i_u = j_h - k;
+                int j_u = k;
+                U[i][j] -= L[i_l][j_l] * U[i_u][j_u];
+            }
+//            }
+//            else{
+//                if(i_h>m-n-1 and j_h > m-n-1){
+//                    int a = 2;
+//                }
+//                else{
+//
+//                }
+//            }
+        }
+        for (int i = 1; i < n; i++) {
+            L[i][j] = A[i][j];
+            int i_h = j + i;
+            int j_h = j;
+            int M;
+            if (i_h > j_h) {
+                M = i_h;
+            } else {
+                M = j_h;
+            }
+            int st = M - n + 1;
+            if (st < 0) {
+                st = 0;
+            }
+//            if (i_h < n) {
+            for (int k = st; k < j_h; k++) {
+                int i_l = i_h - k;
+                int j_l = k;
+                int i_u = j_h - k;
+                int j_u = k;
+                L[i][j] -= L[i_l][j_l] * U[i_u][j_u];
+            }
+//                int i_u = j_h-i_h;
+            int j_u = j_h;
+            L[i][j] = L[i][j] / U[0][j_u];
+//            }
+        }
+//        for (int k = 0; k < i; k++) {
+//             U[i][j]-=L[k][j]*U[k][j];
+//        }
+    }
+}
+
+
+void mat_pro(double **A, double **B, double **C, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            C[i][j] = 0;
+            for (int k = 0; k < n; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+}
+
+void mat_dif(double **A, double **B, double **C, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            C[i][j] = A[i][j] - B[i][j];
+        }
+    }
+
 }
 
 int main() {
@@ -228,7 +342,7 @@ int main() {
     double b = 3.14;
 
     int k = 3;
-    int n = 4;
+    int n = 3;
     int m = (n - 1) * k + 1;
     int l = 15;
     double h = (b - a) / (k * (n - 1));
@@ -254,10 +368,20 @@ int main() {
         L[i] = new double[m];
     }
 
+    double **L_test = new double *[m];
+    for (int i = 0; i < m; i++) {
+        L_test[i] = new double[m];
+    }
+
 
     double **U = new double *[n];
     for (int i = 0; i < n; i++) {
         U[i] = new double[m];
+    }
+
+    double **U_test = new double *[m];
+    for (int i = 0; i < m; i++) {
+        U_test[i] = new double[m];
     }
 
 
@@ -270,6 +394,18 @@ int main() {
     double **A_test = new double *[m];
     for (int i = 0; i < m; i++) {
         A_test[i] = new double[m];
+
+    }
+
+    double **C = new double *[m];
+    for (int i = 0; i < m; i++) {
+        C[i] = new double[m];
+
+    }
+
+    double **D = new double *[m];
+    for (int i = 0; i < m; i++) {
+        D[i] = new double[m];
 
     }
 
@@ -297,9 +433,13 @@ int main() {
     f_A(A, random_args, args, l, k, n);
 
     f_A_G(A, A_G, n, m);
-    A_E = f_A_E(A_G,m,n);
-    cout << A_E << endl;
+
+    A_E = f_A_E(A_G, m, n);
+//    cout << A_E << endl;
+
+
     f_A_test(A_test, random_args, args, l, k, n);
+
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
             cout << setw(10) << A_test[i][j] << " ";
@@ -327,7 +467,7 @@ int main() {
     cout << endl;
 
     f_B(B, y, random_args, args, l, m, k, n);
-    B_E = f_B_E(B,m);
+    B_E = f_B_E(B, m);
 
 //    double **C = new double *[5];
 //    for (int i = 0; i < 5; i++) {
@@ -390,8 +530,22 @@ int main() {
 
 //    f_A_G(A, A_G, n, m);
 
-    gauss(A_G, B,X, m, n);
+    gauss(A_G, B, X, m, n);
 
+
+//    double **T = new double *[3];
+//    for (int i = 0; i < 3; i++) {
+//        T[i] = new double[3];
+//    }
+//    T[0][0] = 10;
+//    T[0][1] = -7;
+//    T[0][2] = 0;
+//    T[1][0] = -3;
+//    T[1][1] = 6;
+//    T[1][2] = 2;
+//    T[2][0] = 5;
+//    T[2][1] = -1;
+//    T[2][2] = 5;
 
 //    for (int i = 0; i < 2 * n - 1; i++) {
 //        for (int j = 0; j < m; j++) {
@@ -402,29 +556,29 @@ int main() {
 //    cout << endl;
 
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            A_test[i][j] = 0.0;
-        }
-    }
+//    for (int i = 0; i < m; i++) {
+//        for (int j = 0; j < m; j++) {
+//            A_test[i][j] = 0.0;
+//        }
+//    }
 
-    for (int i = 0; i < 2 * n - 1; i++) {
-        for (int j = 0; j < m; j++) {
-            if (i <= n) {
-                if (i + j < m) {
-                    A_test[j][i + j] = A_G[i][j];
-                } else {
-                    continue;
-                }
-            } else {
-                if (i + j - 2 < m) {
-                    A_test[i + j - 2][j] = A_G[i][j];
-                } else {
-                    continue;
-                }
-            }
-        }
-    }
+//    for (int i = 0; i < 2 * n - 1; i++) {
+//        for (int j = 0; j < m; j++) {
+//            if (i <= n) {
+//                if (i + j < m) {
+//                    A_test[j][i + j] = A_G[i][j];
+//                } else {
+//                    continue;
+//                }
+//            } else {
+//                if (i + j - 2 < m) {
+//                    A_test[i + j - 2][j] = A_G[i][j];
+//                } else {
+//                    continue;
+//                }
+//            }
+//        }
+//    }
 
 
 
@@ -436,23 +590,87 @@ int main() {
 //    }
 //    cout << endl;
 
+//    for (int i = 0; i < m; i++) {
+//        for (int j = 0; j < m; j++) {
+//            cout << setw(10) << A_test[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+//    cout << endl;
+
+//    for (int i = 0; i < m; i++) {
+//        cout << X[i] << " ";
+//    }
+
+    X_E = A_E.colPivHouseholderQr().solve(B_E);
+    cout << endl;
+
+//    for (int i = 0; i < m; i++) {
+//        cout << X_E(i) << " ";
+//    }
+//    cout << endl;
+
+    prep_L_test(L_test, m);
+    LU_test(A_test, L_test, U_test, m);
+
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
-            cout << setw(10) << A_test[i][j] << " ";
+            cout << setw(10) << L_test[i][j] << " ";
         }
         cout << endl;
     }
     cout << endl;
 
     for (int i = 0; i < m; i++) {
-        cout << X[i] << " ";
+        for (int j = 0; j < m; j++) {
+            cout << setw(10) << U_test[i][j] << " ";
+        }
+        cout << endl;
     }
-
-    X_E = A_E.colPivHouseholderQr().solve(B_E);
     cout << endl;
-    for (int i = 0; i < m; i++) {
-        cout << X_E(i) << " ";
-    }
 
+//    mat_pro(L_test, U_test, C, m);
+//
+//    mat_dif(A_test, C, D, m);
+    prep_L(L, m);
+    LU(A, L, U, m, n);
+//    for (int i = 0; i < m; i++) {
+//        for (int j = 0; j < m; j++) {
+//            cout << setw(10) << U[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+//    cout << endl;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            L_test[i][j] = 0;
+            U_test[i][j] = 0;
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (i + j < m) {
+                L_test[i + j][j] = L[i][j];
+                U_test[j][i + j] = U[i][j];
+            }
+        }
+    }
+//    for (int i = 0; i < m; i++) {
+//        for (int j = 0; j < m; j++) {
+//            cout << setw(10) << U_test[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
+
+    mat_pro(L_test, U_test, C, m);
+
+    mat_dif(A_test, C, D, m);
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            cout << setw(10) << D[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
     return 0;
 }
