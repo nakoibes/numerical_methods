@@ -224,7 +224,7 @@ void g_s_H(double **A, double *B, int m, int n) {
     for (int i = 0; i < m - 1; i++) {
         for (int j = 1; j < n; j++) {
             if (i + j < m) {
-                B[i + j] -= B[i] * A[j][i]/A[0][i];
+                B[i + j] -= B[i] * A[j][i] / A[0][i];
                 A[j][i] = 0.0;
             }
         }
@@ -261,7 +261,7 @@ void gauss_H(double **H, double **H_t, double *B, double *X, int m, int n) {
     double eps = 0.0000001;
     g_s_H(H, B, m, n);
     for (int i = 0; i < m; i++) {
-        Y[i] = B[i]/H[0][i];
+        Y[i] = B[i] / H[0][i];
     }
 
     gauss_r(H_t, Y, m, n, eps);
@@ -431,6 +431,71 @@ void holec(double **A, double **H, int m, int n) {
     }
 }
 
+void make_h_t(double **H, double **H_t, int m, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            H_t[i][j] = H[i][j];
+        }
+    }
+}
+
+double c_norm_1(double* X,double* Y,int m){
+    double norm = 0;
+    for(int i =0;i<m;i++){
+        norm += abs(X[i]-Y[i]);
+    }
+    return norm;
+}
+
+void rel_comp(double **A, double *Y, double *X,double* B, int q, int m, int n) {
+    X[q] = B[q];
+    int st = q - n + 1;
+    if (st < 0)
+        st = 0;
+    for (int i = st; i < q; i++) {
+        X[q]-= A[q-i][i]*X[i];
+    }
+    int fi = q+n;
+    if(fi>m){
+        fi = m;
+    }
+    for (int i = q+1; i < fi; i++) {
+        X[q]-= A[i-q][q]*Y[i];
+    }
+    X[q] = X[q]/A[0][q];
+}
+void rel_iter(double **A, double *Y, double *X,double* B, int m, int n, double w){
+    for(int i=0;i<m;i++){
+        rel_comp(A,Y,X,B,i,m,n);
+    }
+    for(int i=0;i<m;i++){
+        X[i] = (X[i]*w+(1.0-w)*Y[i]);
+    }
+}
+
+void over_rel(double **A, double *Y, double *X,double* B,double w, int m, int n, double eps) {
+    int i=0;
+    while(true){
+        rel_iter(A,Y,X,B,m,n,w);
+        if(c_norm_1(X,Y,m) < eps){
+            cout << "converged for " << i << " steps" << endl;
+            break;
+        }
+
+        for(int j=0;j<m;j++){
+            Y[j] = X[j];
+        }
+        if(i==10000){
+            cout << "infinite loop" << endl;
+            break;
+        }
+        i++;
+    }
+
+}
+
+
+
 int main() {
 
     function<double(double)> y = func;
@@ -538,6 +603,11 @@ int main() {
     double X[m];
     for (int i = 0; i < m; i++) {
         X[i] = 0.0;
+    }
+
+    double Y[m];
+    for (int i = 0; i < m; i++) {
+        Y[i] = 0.0;
     }
 
 
@@ -757,9 +827,9 @@ int main() {
 //        }
 //        cout << endl;
 
-    prep_L(L, m);
-    LU(A, L, U, m, n);
-    gauss_LU(L, U, B, X, m, n);
+//    prep_L(L, m);
+//    LU(A, L, U, m, n);
+//    gauss_LU(L, U, B, X, m, n);
 
 
 //    double **T_t = new double *[2];
@@ -770,17 +840,9 @@ int main() {
 // double B_test[3]={1,1,1};
 
 //    holec(A, H, m, n);
-////        for (int i = 0; i < 2; i++) {
-////        for (int j = 0; j < 3; j++) {
-////            H_t[i][j] = H[i][j];
-////        }
-////    }
-//    for (int i = 0; i < n; i++) {
-//        for (int j = 0; j < m; j++) {
-//            H_t[i][j] = H[i][j];
-//        }
-//    }
+//    make_h_t(H,H_t,m,n);
 //    gauss_H(H, H_t, B, X, m, n);
+    over_rel(A,Y,X,B,1.1,m,n,0.000001);
 
 
     X_E = A_E.colPivHouseholderQr().solve(B_E);
