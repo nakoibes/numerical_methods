@@ -439,53 +439,88 @@ void make_h_t(double **H, double **H_t, int m, int n) {
     }
 }
 
-double c_norm_1(double* X,double* Y,int m){
+double c_norm_1(double *X, double *Y, int m) {
     double norm = 0;
-    for(int i =0;i<m;i++){
-        norm += abs(X[i]-Y[i]);
+    for (int i = 0; i < m; i++) {
+        norm += abs(X[i] - Y[i]);
     }
     return norm;
 }
 
-void rel_comp(double **A, double *Y, double *X,double* B, int q, int m, int n) {
+double scal_pr(double *A, double *B, int m) {
+    double product = 0;
+    for (int i = 0; i < m; i++) {
+        product += A[i] * B[i];
+    }
+    return product;
+}
+
+void mat_vec(double **A, double *B, double *res, int m,int n) {
+    for (int i = 0; i < m; i++) {
+        int st = i - n + 1;
+        if (st < 0)
+            st = 0;
+        int fi = i + n;
+        if (fi > m) {
+            fi = m;
+        }
+        for (int j = st; j < fi; j++) {
+            if(i>=j) {
+                res[i] += A[i-j][j] * B[j];
+            }
+            else{
+                res[i] += A[j-i][i] * B[j];
+            }
+        }
+    }
+}
+
+void vec_dif(double *A, double *B, double *res, int m) {
+    for (int i = 0; i < m; i++) {
+        res[i] = A[i] - B[i];
+    }
+}
+
+void rel_comp(double **A, double *Y, double *X, double *B, int q, int m, int n) {
     X[q] = B[q];
     int st = q - n + 1;
     if (st < 0)
         st = 0;
     for (int i = st; i < q; i++) {
-        X[q]-= A[q-i][i]*X[i];
+        X[q] -= A[q - i][i] * X[i];
     }
-    int fi = q+n;
-    if(fi>m){
+    int fi = q + n;
+    if (fi > m) {
         fi = m;
     }
-    for (int i = q+1; i < fi; i++) {
-        X[q]-= A[i-q][q]*Y[i];
+    for (int i = q + 1; i < fi; i++) {
+        X[q] -= A[i - q][q] * Y[i];
     }
-    X[q] = X[q]/A[0][q];
+    X[q] = X[q] / A[0][q];
 }
-void rel_iter(double **A, double *Y, double *X,double* B, int m, int n, double w){
-    for(int i=0;i<m;i++){
-        rel_comp(A,Y,X,B,i,m,n);
+
+void rel_iter(double **A, double *Y, double *X, double *B, int m, int n, double w) {
+    for (int i = 0; i < m; i++) {
+        rel_comp(A, Y, X, B, i, m, n);
     }
-    for(int i=0;i<m;i++){
-        X[i] = (X[i]*w+(1.0-w)*Y[i]);
+    for (int i = 0; i < m; i++) {
+        X[i] = (X[i] * w + (1.0 - w) * Y[i]);
     }
 }
 
-void over_rel(double **A, double *Y, double *X,double* B,double w, int m, int n, double eps) {
-    int i=0;
-    while(true){
-        rel_iter(A,Y,X,B,m,n,w);
-        if(c_norm_1(X,Y,m) < eps){
-            cout << "converged for " << i << " steps" << endl;
+void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int n, double eps) {
+    int i = 0;
+    while (true) {
+        rel_iter(A, Y, X, B, m, n, w);
+        if (c_norm_1(X, Y, m) < eps) {
+            cout << "relaxation converged for " << i << " steps" << endl;
             break;
         }
 
-        for(int j=0;j<m;j++){
+        for (int j = 0; j < m; j++) {
             Y[j] = X[j];
         }
-        if(i==10000){
+        if (i == 10000) {
             cout << "infinite loop" << endl;
             break;
         }
@@ -494,7 +529,66 @@ void over_rel(double **A, double *Y, double *X,double* B,double w, int m, int n,
 
 }
 
+void conjug(double **A, double *Y, double *X, double *B, int m, int n, double eps) {
+    int i = 0;
+    int count = 0;
+    double r_o[m];
+    double r_n[m];
+    double Ax[m];
+    for (int j = 0; j < m; j++) {
+        Ax[j] = 0.0;
+    }
+    mat_vec(A,Y,Ax,m,n);
+    for (int j = 0; j < m; j++) {
+        r_o[j] = B[j] - Ax[j];
+    }
+    double p[m];
+    for (int j = 0; j < m; j++) {
+        p[j] = r_o[j];
+    }
+    double al;
+    double be;
+    while (true) {
+        double Apk[m];
+        for (int j = 0; j < m; j++) {
+            Apk[j] = 0.0;
+        }
+        mat_vec(A, p, Apk, m,n);
+        double scalrr = scal_pr(r_o, r_o, m);
+        al = scalrr / scal_pr(Apk, p, m);
+        for (int j = 0; j < m; j++) {
+            X[j] = Y[j] + al * p[j];
+        }
+        for (int j = 0; j < m; j++) {
+            r_n[j] = r_o[j]-al * Apk[j];
+        }
+        be = scal_pr(r_n, r_n, m) / scalrr;
+        for (int j = 0; j < m; j++) {
+            p[j] = r_n[j] + be * p[j];
+        }
 
+        if (c_norm_1(X, Y, m) < eps) {
+            count += 1;
+            if (count == 5) {
+                cout << "conjugate converged for " << i << " steps" << endl;
+                break;
+            }
+        } else {
+            count = 0;
+        }
+        for (int j = 0; j < m; j++) {
+            Y[j] = X[j];
+            X[j] = 0.0;
+            r_o[j] = r_n[j];
+        }
+
+        if (i == 10000) {
+            cout << "infinite loop" << endl;
+            break;
+        }
+        i++;
+    }
+}
 
 int main() {
 
@@ -842,8 +936,8 @@ int main() {
 //    holec(A, H, m, n);
 //    make_h_t(H,H_t,m,n);
 //    gauss_H(H, H_t, B, X, m, n);
-    over_rel(A,Y,X,B,1.1,m,n,0.000001);
-
+//    over_rel(A, Y, X, B, 1.1, m, n, 0.000001);
+    conjug(A, Y, X, B, m, n, 0.0001);
 
     X_E = A_E.colPivHouseholderQr().solve(B_E);
     cout << endl;
