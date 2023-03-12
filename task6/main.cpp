@@ -2,6 +2,7 @@
 #include <functional>
 #include <cmath>
 #include <iomanip>
+#include <fstream>
 #include <Eigen/Dense>
 
 using namespace std;
@@ -58,25 +59,6 @@ void f_A(double **A, double **random_args, double **args, int l, int k, int n) {
                         A[j_u - i_u][i_u] +=
                                 fi(random_args[i][q], args[i], j1, n) * fi(random_args[i][q], args[i], j2, n);
                     }
-//                    A[i * (n - 1) + j2][i * (n - 1) + j1] = A[i * (n - 1) + j1][i * (n - 1) + j2];
-                }
-            }
-        }
-    }
-}
-
-void f_A_test(double **A, double **random_args, double **args, int l, int k, int n) {
-    for (int i = 0; i < k; i++) {
-        for (int j1 = 0; j1 < n; j1++) {
-            for (int j2 = 0; j2 < n; j2++) {
-                if ((i * (n - 1) + j1) <= (i * (n - 1) + j2)) {
-                    for (int q = 0; q < l; q++) {
-//                        int i_h = i * (n - 1) + j1;
-//                        int j_h = i * (n - 1) + j2;
-                        A[i * (n - 1) + j1][i * (n - 1) + j2] +=
-                                fi(random_args[i][q], args[i], j1, n) * fi(random_args[i][q], args[i], j2, n);
-                    }
-                    A[i * (n - 1) + j2][i * (n - 1) + j1] = A[i * (n - 1) + j1][i * (n - 1) + j2];
                 }
             }
         }
@@ -149,31 +131,6 @@ void gauss_s(double **A, double *B, int m, int n, double eps) {
         }
     }
 
-
-
-
-
-//for square matrix
-//    double eps = 0.0000001;
-//    for (int i = 0; i < m - 1; i++) {
-//        for (int j = 0; j < n; j++) {
-//            if (i + j + 1 < m) {
-//                if (abs(A[i + j + 1][i]) > eps) {
-//                    double koef = 1.0 / A[i + j + 1][i];
-//                    A[i + j + 1][i] = 0;
-//                    for (int k = 1; k < n; k++) {
-//                        if (i + k < m) {
-//                            A[i + j + 1][i + k] = A[i + j + 1][i + k] - A[i + j][i + k] * koef;
-//                        }
-//                    }
-//                } else {
-//                    break;
-//                }
-//            } else {
-//                break;
-//            }
-//        }
-//    }
 }
 
 void gauss_r(double **A, double *B, int m, int n, double eps) {
@@ -188,14 +145,6 @@ void gauss_r(double **A, double *B, int m, int n, double eps) {
             } else {
                 continue;
             }
-        }
-    }
-}
-
-void m_v_p(double **A, double *B, double *C, int m) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            C[i] += A[i][j] * B[j];
         }
     }
 }
@@ -231,17 +180,6 @@ void g_s_H(double **A, double *B, int m, int n) {
     }
 }
 
-//void g_r_LU(double **A, double *B, int m, int n){
-//    for (int i = m-1; i > 0; i--) {
-//        for (int j = 1; j < n; j++) {
-//
-//                B[j] -= B[i] * A[j][i];
-//                A[j][i] = 0.0;
-//
-//        }
-//    }
-//}
-
 void gauss_LU(double **L, double **U, double *B, double *X, int m, int n) {
     double Y[m];
     double eps = 0.0000001;
@@ -273,21 +211,11 @@ void gauss_H(double **H, double **H_t, double *B, double *X, int m, int n) {
 MatrixXd f_A_E(double **A, int m, int n) {
     MatrixXd A_E(m, m);
     A_E.setZero();
-    for (int i = 0; i < 2 * n - 1; i++) {
+    for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-//            cout << A_E << endl;
-            if (i < n) {
-                if (i + j < m) {
-                    A_E(j, i + j) = A[i][j];
-                } else {
-                    continue;
-                }
-            } else {
-                if (i + j - n + 1 < m) {
-                    A_E(i + j - n + 1, j) = A[i][j];
-                } else {
-                    continue;
-                }
+            if (i + j < m) {
+                A_E(j, i + j) = A[i][j];
+                A_E(i + j, j) = A[i][j];
             }
         }
     }
@@ -299,32 +227,6 @@ void prep_L(double **L, int m) {
         L[0][i] = 1;
     }
 }
-
-void prep_L_test(double **L, int m) {
-    for (int i = 0; i < m; i++) {
-        L[i][i] = 1;
-    }
-}
-
-void LU_test(double **A, double **L, double **U, int m) {
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            if (i <= j) {
-                U[i][j] = A[i][j];
-                for (int k = 0; k < i; k++) {
-                    U[i][j] -= (L[i][k] * U[k][j]);
-                }
-            } else {
-                L[i][j] = A[i][j];
-                for (int k = 0; k < j; k++) {
-                    L[i][j] -= (L[i][k] * U[k][j]);
-                }
-                L[i][j] = L[i][j] / U[j][j];
-            }
-        }
-    }
-}
-
 
 void LU(double **A, double **L, double **U, int m, int n) {
     for (int j = 0; j < m; j++) {
@@ -379,23 +281,9 @@ void LU(double **A, double **L, double **U, int m, int n) {
     }
 }
 
-
-void mat_pro(double **A, double **B, double **C, int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            C[i][j] = 0;
-            for (int k = 0; k < n; k++) {
-                C[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-}
-
-void mat_dif(double **A, double **B, double **C, int n) {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            C[i][j] = A[i][j] - B[i][j];
-        }
+void copy_vec(double *A, double *B, int m) {
+    for (int i = 0; i < m; i++) {
+        B[i] = A[i];
     }
 }
 
@@ -431,7 +319,7 @@ void holec(double **A, double **H, int m, int n) {
     }
 }
 
-void make_h_t(double **H, double **H_t, int m, int n) {
+void copy_mat(double **H, double **H_t, int m, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             H_t[i][j] = H[i][j];
@@ -455,7 +343,7 @@ double scal_pr(double *A, double *B, int m) {
     return product;
 }
 
-void mat_vec(double **A, double *B, double *res, int m,int n) {
+void mat_vec(double **A, double *B, double *res, int m, int n) {
     for (int i = 0; i < m; i++) {
         int st = i - n + 1;
         if (st < 0)
@@ -465,11 +353,10 @@ void mat_vec(double **A, double *B, double *res, int m,int n) {
             fi = m;
         }
         for (int j = st; j < fi; j++) {
-            if(i>=j) {
-                res[i] += A[i-j][j] * B[j];
-            }
-            else{
-                res[i] += A[j-i][i] * B[j];
+            if (i >= j) {
+                res[i] += A[i - j][j] * B[j];
+            } else {
+                res[i] += A[j - i][i] * B[j];
             }
         }
     }
@@ -513,7 +400,7 @@ void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int 
     while (true) {
         rel_iter(A, Y, X, B, m, n, w);
         if (c_norm_1(X, Y, m) < eps) {
-            cout << "relaxation converged for " << i << " steps" << endl;
+            cout << "relaxation converged for " << i + 1 << " steps" << endl;
             break;
         }
 
@@ -538,7 +425,7 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
     for (int j = 0; j < m; j++) {
         Ax[j] = 0.0;
     }
-    mat_vec(A,Y,Ax,m,n);
+    mat_vec(A, Y, Ax, m, n);
     for (int j = 0; j < m; j++) {
         r_o[j] = B[j] - Ax[j];
     }
@@ -553,14 +440,14 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
         for (int j = 0; j < m; j++) {
             Apk[j] = 0.0;
         }
-        mat_vec(A, p, Apk, m,n);
+        mat_vec(A, p, Apk, m, n);
         double scalrr = scal_pr(r_o, r_o, m);
         al = scalrr / scal_pr(Apk, p, m);
         for (int j = 0; j < m; j++) {
             X[j] = Y[j] + al * p[j];
         }
         for (int j = 0; j < m; j++) {
-            r_n[j] = r_o[j]-al * Apk[j];
+            r_n[j] = r_o[j] - al * Apk[j];
         }
         be = scal_pr(r_n, r_n, m) / scalrr;
         for (int j = 0; j < m; j++) {
@@ -570,7 +457,7 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
         if (c_norm_1(X, Y, m) < eps) {
             count += 1;
             if (count == 5) {
-                cout << "conjugate converged for " << i << " steps" << endl;
+                cout << "conjugate converged for " << i + 1 << " steps" << endl;
                 break;
             }
         } else {
@@ -589,20 +476,156 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
         i++;
     }
 }
+double calc_abs_err_1(double *A, double *B, int n) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        result += abs(A[i] - B[i]);
+    }
+    return result;
+}
+double calc_abs_err_2(double *A, double *B, int n) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        result += pow(abs(A[i] - B[i]), 2);
+    }
+    return sqrt(result);
+}
+double calc_abs_err_cheb(double *A, double *B, int n) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        if (abs(A[i] - B[i]) > result) {
+            result = abs(A[i] - B[i]);
+        }
+    }
+    return result;
+}
+double calc_rel_err_1(double *A, double *B, int n) {
+    double eps = 0.000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        num += (abs(A[i] - B[i]));
+    }
+    for (int i = 0; i < n; i++) {
+        den += abs(A[i]);
+    }
+    if (abs(den - 0.0) < eps) {
+        den = 1.0;
+    }
+    return num / den;
+}
+double calc_rel_err_2(double *A, double *B, int n) {
+    double eps = 0.000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        num += (pow(abs(A[i] - B[i]), 2));
+    }
+    for (int i = 0; i < n; i++) {
+        den += pow(A[i], 2);
+    }
+    if (abs(den - 0.0) < eps) {
+        den = 1.0;
+    }
+    return sqrt(num) / sqrt(den);
+}
+
+double calc_rel_err_cheb(double *A, double *B, int n) {
+    double eps = 0.000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        if (abs(A[i] - B[i]) > num) {
+            num = (abs(A[i] - B[i]));
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        if (abs(A[i]) > den) {
+            den = (abs(A[i]));
+        }
+    }
+    if (abs(den - 0.0) < eps) {
+        den = 1.0;
+    }
+    return num / den;
+}
+
+void write_e(double* X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, double *X_conj, int m, string filename) {
+    ofstream fout(filename);
+    fout << fixed;
+    fout.precision(6);
+    fout << setw(15) << left << "error"
+         << setw(15) << left << "gauss"
+         << setw(15) << left << "LU"
+         << setw(15) << left << "cholesky"
+         << setw(15) << left << "relax"
+         << setw(15) << left << "conjugate"
+         << endl;
+    fout << setw(15) << left << "abs_err_1"
+         << setw(15) << left << scientific << calc_abs_err_1(X_e, X_g, m)
+         << setw(15) << left << calc_abs_err_1(X_e, X_LU, m)
+         << setw(15) << left << calc_abs_err_1(X_e, X_hol, m)
+         << setw(15) << left << calc_abs_err_1(X_e, X_rel, m)
+         << setw(15) << left << calc_abs_err_1(X_e, X_conj, m)
+         << endl;
+    fout << setw(15) << left << "abs_err_2"
+         << setw(15) << left << calc_abs_err_2(X_e, X_g, m)
+         << setw(15) << left << calc_abs_err_2(X_e, X_LU, m)
+         << setw(15) << left << calc_abs_err_2(X_e, X_hol, m)
+         << setw(15) << left << calc_abs_err_2(X_e, X_rel, m)
+         << setw(15) << left << calc_abs_err_2(X_e, X_conj, m)
+         << endl;
+    fout << setw(15) << left << "abs_err_c"
+         << setw(15) << left << calc_abs_err_cheb(X_e, X_g, m)
+         << setw(15) << left << calc_abs_err_cheb(X_e, X_LU, m)
+         << setw(15) << left << calc_abs_err_cheb(X_e, X_hol, m)
+         << setw(15) << left << calc_abs_err_cheb(X_e, X_rel, m)
+         << setw(15) << left << calc_abs_err_cheb(X_e, X_conj, m)
+         << endl;
+
+    fout << setw(15) << left << "rel_err_1"
+         << setw(15) << left << calc_rel_err_1(X_e, X_g, m)
+         << setw(15) << left << calc_rel_err_1(X_e, X_LU, m)
+         << setw(15) << left << calc_rel_err_1(X_e, X_hol, m)
+         << setw(15) << left << calc_rel_err_1(X_e, X_rel, m)
+         << setw(15) << left << calc_rel_err_1(X_e, X_conj, m)
+         << endl;
+
+    fout << setw(15) << left << "rel_err_2"
+         << setw(15) << left << calc_rel_err_2(X_e, X_g, m)
+         << setw(15) << left << calc_rel_err_2(X_e, X_LU, m)
+         << setw(15) << left << calc_rel_err_2(X_e, X_hol, m)
+         << setw(15) << left << calc_rel_err_2(X_e, X_rel, m)
+         << setw(15) << left << calc_rel_err_2(X_e, X_conj, m)
+         << endl;
+
+    fout << setw(15) << left << "rel_err_c"
+         << setw(15) << left << calc_rel_err_cheb(X_e, X_g, m)
+         << setw(15) << left << calc_rel_err_cheb(X_e, X_LU, m)
+         << setw(15) << left << calc_rel_err_cheb(X_e, X_hol, m)
+         << setw(15) << left << calc_rel_err_cheb(X_e, X_rel, m)
+         << setw(15) << left << calc_rel_err_cheb(X_e, X_conj, m)
+         << endl;
+
+    fout.close();
+
+
+}
 
 int main() {
-
+    srand((unsigned int) time(nullptr));
     function<double(double)> y = func;
 
     double a = -3.14;
     double b = 3.14;
 
+    double iter_par = 0.0001;
+
     int k = 3;
-    int n = 3;
+    int n = 4;
     int m = (n - 1) * k + 1;
     int l = 13;
     double h = (b - a) / (k * (n - 1));
-    int le = 2 * n - 1;
 
     double **args = new double *[k];
     for (int i = 0; i < k; i++) {
@@ -634,69 +657,39 @@ int main() {
         H_t[i] = new double[m];
     }
 
-    double **L_H = new double *[n];
-    for (int i = 0; i < n; i++) {
-        L_H[i] = new double[m];
-    }
-
-    double **L_test = new double *[m];
-    for (int i = 0; i < m; i++) {
-        L_test[i] = new double[m];
-    }
-
-    double **H_test = new double *[m];
-    for (int i = 0; i < m; i++) {
-        H_test[i] = new double[m];
-    }
-
-    double **H_test_t = new double *[m];
-    for (int i = 0; i < m; i++) {
-        H_test_t[i] = new double[m];
-    }
-
-
     double **U = new double *[n];
     for (int i = 0; i < n; i++) {
         U[i] = new double[m];
     }
 
-    double **U_test = new double *[m];
-    for (int i = 0; i < m; i++) {
-        U_test[i] = new double[m];
-    }
-
-
-    double **A_G = new double *[2 * n - 1];
+    double **A_g = new double *[2 * n - 1];
     for (int i = 0; i < 2 * n - 1; i++) {
-        A_G[i] = new double[m];
-
-    }
-
-    double **A_test = new double *[m];
-    for (int i = 0; i < m; i++) {
-        A_test[i] = new double[m];
-
-    }
-
-    double **C = new double *[m];
-    for (int i = 0; i < m; i++) {
-        C[i] = new double[m];
-
-    }
-
-    double **D = new double *[m];
-    for (int i = 0; i < m; i++) {
-        D[i] = new double[m];
+        A_g[i] = new double[m];
 
     }
 
     double B[m];
-//    for (int i = 0; i < m; i++) {
-//    }
 
-    double X[m];
+    double X_e[m];
+    double X_g[m];
     for (int i = 0; i < m; i++) {
-        X[i] = 0.0;
+        X_g[i] = 0.0;
+    }
+    double X_LU[m];
+    for (int i = 0; i < m; i++) {
+        X_LU[i] = 0.0;
+    }
+    double X_hol[m];
+    for (int i = 0; i < m; i++) {
+        X_hol[i] = 0.0;
+    }
+    double X_rel[m];
+    for (int i = 0; i < m; i++) {
+        X_rel[i] = 0.0;
+    }
+    double X_conj[m];
+    for (int i = 0; i < m; i++) {
+        X_conj[i] = 0.0;
     }
 
     double Y[m];
@@ -704,6 +697,21 @@ int main() {
         Y[i] = 0.0;
     }
 
+    double B_g[m];
+    double B_LU[m];
+    double B_hol[m];
+
+    double AX_g[m];
+    double AX_LU[m];
+    double AX_hol[m];
+    double AX_rel[m];
+    double AX_conj[m];
+
+    double resi_g[m];
+    double resi_LU[m];
+    double resi_hol[m];
+    double resi_rel[m];
+    double resi_conj[m];
 
     MatrixXd A_E(m, m);
     A_E.setZero();
@@ -718,296 +726,45 @@ int main() {
 
     f_A(A, random_args, args, l, k, n);
 
-    f_A_G(A, A_G, n, m);
+    f_A_G(A, A_g, n, m);
 
-    A_E = f_A_E(A_G, m, n);
-//    cout << A_E << endl;
-
-
-    f_A_test(A_test, random_args, args, l, k, n);
-
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < m; j++) {
-            cout << setw(10) << A_test[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-
-    //half
-//    for (int i = 0; i < n; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << A[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
-
-//    for (int i = 0; i < 2 * n - 1; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << A_G[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
+    A_E = f_A_E(A_g, m, n);
 
     f_B(B, y, random_args, args, l, m, k, n);
+    copy_vec(B, B_g, m);
+    copy_vec(B, B_LU, m);
+    copy_vec(B, B_hol, m);
     B_E = f_B_E(B, m);
 
-//    double **C = new double *[5];
-//    for (int i = 0; i < 5; i++) {
-//        C[i] = new double[5];
-//    }
-//
-//    C[0][0] = 1.0;
-//    C[0][1] = 2.0;
-//    C[0][2] = 3.0;
-//    C[0][3] = 0.0;
-//    C[0][4] = 0.0;
-//    C[1][0] = 7.0;
-//    C[1][1] = 8.0;
-//    C[1][2] = 9.0;
-//    C[1][3] = 0.0;
-//    C[1][4] = 0.0;
-//    C[2][0] = 2.0;
-//    C[2][1] = 3.0;
-//    C[2][2] = 4.0;
-//    C[2][3] = 5.0;
-//    C[2][4] = 1.0;
-//    C[3][0] = 0.0;
-//    C[3][1] = 0.0;
-//    C[3][2] = 4.0;
-//    C[3][3] = 5.0;
-//    C[3][4] = 1.0;
-//    C[4][0] = 0.0;
-//    C[4][1] = 0.0;
-//    C[4][2] = 7.0;
-//    C[4][3] = 7.0;
-//    C[4][4] = 2.0;
+    f_A_G(A, A_g, n, m);
+    gauss(A_g, B_g, X_g, m, n);
 
+    prep_L(L, m);
+    LU(A, L, U, m, n);
+    gauss_LU(L, U, B_LU, X_LU, m, n);
 
-//    n = 2;
-//    m = 3;
+    holec(A, H, m, n);
+    copy_mat(H, H_t, m, n);
+    gauss_H(H, H_t, B_hol, X_hol, m, n);
 
-//    double **P_test = new double *[3];
-//    for (int i = 0; i < 3; i++) {
-//        P_test[i] = new double[3];
-//    }
-//
-//    P_test[0][0] = 1.0;
-//    P_test[0][1] = 0.0;
-//    P_test[0][2] = 2.0;
-//    P_test[1][0] = 0.0;
-//    P_test[1][1] = 1.0;
-//    P_test[1][2] = 0.0;
-//    P_test[2][0] = 0.0;
-//    P_test[2][1] = 0.0;
-//    P_test[2][2] = 4.0;
-//
-//    double B_test[3] = {1.0, 1.0, 1.0};
-//    double C_test[3] = {0.0, 0.0, 0.0};
+    over_rel(A, Y, X_rel, B, 1.1, m, n, iter_par);
 
-
-//    double **A_G1 = new double *[2 * n - 1];
-//    for (int i = 0; i < 2 * n - 1; i++) {
-//        A_G1[i] = new double[m];
-//
-//    }
-
-//    double B1[3]{1, 1, 1};
-
-//    f_A_G(A, A_G, n, m);
-
-//    gauss(A_G, B, X, m, n);
-
-
-    double **T = new double *[2];
-    for (int i = 0; i < 2; i++) {
-        T[i] = new double[3];
-    }
-    T[0][0] = 1.0;
-    T[0][1] = 5;
-    T[0][2] = 10;
-    T[1][0] = 2;
-    T[1][1] = 3;
-    T[1][2] = 0;
-//    T[2][0] = 5;
-//    T[2][1] = -1;
-//    T[2][2] = 5;
-
-//    for (int i = 0; i < 2 * n - 1; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << A_G[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
-
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            A_test[i][j] = 0.0;
-//        }
-//    }
-
-//    for (int i = 0; i < 2 * n - 1; i++) {
-//        for (int j = 0; j < m; j++) {
-//            if (i <= n) {
-//                if (i + j < m) {
-//                    A_test[j][i + j] = A_G[i][j];
-//                } else {
-//                    continue;
-//                }
-//            } else {
-//                if (i + j - 2 < m) {
-//                    A_test[i + j - 2][j] = A_G[i][j];
-//                } else {
-//                    continue;
-//                }
-//            }
-//        }
-//    }
-
-
-
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << A_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << A_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
-
-
-
-
-//    prep_L_test(L_test, m);
-//    LU_test(A_test, L_test, U_test, m);
-
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << L_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-//
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << U_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
-//    mat_pro(L_test, U_test, C, m);
-//
-//    mat_dif(A_test, C, D, m);
-
-//    m_v_p(P_test,B_test,C_test,3);
-
-//        for (int i = 0; i < 3; i++) {
-//            cout << setw(10) << C_test[i] << " ";
-//        }
-//        cout << endl;
-
-//    prep_L(L, m);
-//    LU(A, L, U, m, n);
-//    gauss_LU(L, U, B, X, m, n);
-
-
-//    double **T_t = new double *[2];
-//    for (int i = 0; i < 2; i++) {
-//        T_t[i] = new double[3];
-//    }
-
-// double B_test[3]={1,1,1};
-
-//    holec(A, H, m, n);
-//    make_h_t(H,H_t,m,n);
-//    gauss_H(H, H_t, B, X, m, n);
-//    over_rel(A, Y, X, B, 1.1, m, n, 0.000001);
-    conjug(A, Y, X, B, m, n, 0.0001);
+    conjug(A, Y, X_conj, B, m, n, iter_par);
 
     X_E = A_E.colPivHouseholderQr().solve(B_E);
-    cout << endl;
-
     for (int i = 0; i < m; i++) {
-        cout << X_E(i) << " ";
+        X_e[i] = X_E(i);
     }
-    cout << endl;
 
-    for (int i = 0; i < m; i++) {
-        cout << X[i] << " ";
-    }
-    cout << endl;
+    write_e(X_e,X_g,X_LU,X_hol,X_rel,X_conj,m,"Xerrors");
 
+    mat_vec(A,X_g,AX_g,m,n);
+    mat_vec(A,X_LU,AX_LU,m,n);
+    mat_vec(A,X_hol,AX_hol,m,n);
+    mat_vec(A,X_rel,AX_rel,m,n);
+    mat_vec(A,X_conj,AX_conj,m,n);
 
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << U[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            L_test[i][j] = 0;
-//            U_test[i][j] = 0;
-//        }
-//    }
-
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << U_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-
-//    for (int i = 0; i < n; i++) {
-//        for (int j = 0; j < m; j++) {
-//            if (i + j < m) {
-//                H_test[i + j][j] = H[i][j];
-//                H_test_t[j][i + j] = H_t[i][j];
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << H_test[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << H_test_t[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//
-//
-//    mat_pro(H_test, H_test_t, C, m);
-//
-//    mat_dif(A_test, C, D, m);
-//    for (int i = 0; i < m; i++) {
-//        for (int j = 0; j < m; j++) {
-//            cout << setw(10) << D[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//    cout << endl;
-
+    write_e(B,AX_g,AX_LU,AX_hol,AX_rel,AX_conj,m,"Residuals");
 
     return 0;
 }
