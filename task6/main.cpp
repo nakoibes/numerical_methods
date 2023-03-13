@@ -692,9 +692,14 @@ int main() {
         X_conj[i] = 0.0;
     }
 
-    double Y[m];
+    double Y_rel[m];
     for (int i = 0; i < m; i++) {
-        Y[i] = 0.0;
+        Y_rel[i] = 0.0;
+    }
+
+    double Y_conj[m];
+    for (int i = 0; i < m; i++) {
+        Y_conj[i] = 0.0;
     }
 
     double B_g[m];
@@ -747,9 +752,9 @@ int main() {
     copy_mat(H, H_t, m, n);
     gauss_H(H, H_t, B_hol, X_hol, m, n);
 
-    over_rel(A, Y, X_rel, B, 1.1, m, n, iter_par);
+    over_rel(A, Y_rel, X_rel, B, 1.1, m, n, iter_par);
 
-    conjug(A, Y, X_conj, B, m, n, iter_par);
+    conjug(A, Y_conj, X_conj, B, m, n, iter_par);
 
     X_E = A_E.colPivHouseholderQr().solve(B_E);
     for (int i = 0; i < m; i++) {
