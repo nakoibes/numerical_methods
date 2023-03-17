@@ -396,11 +396,11 @@ void rel_iter(double **A, double *Y, double *X, double *B, int m, int n, double 
 }
 
 void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int n, double eps) {
-    int i = 0;
+    int i = 1;
     while (true) {
         rel_iter(A, Y, X, B, m, n, w);
         if (c_norm_1(X, Y, m) < eps) {
-            cout << "relaxation converged for " << i + 1 << " steps" << endl;
+            cout << "relaxation converged for " << i << " steps" << endl;
             break;
         }
 
@@ -417,7 +417,7 @@ void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int 
 }
 
 void conjug(double **A, double *Y, double *X, double *B, int m, int n, double eps) {
-    int i = 0;
+    int i = 1;
     int count = 0;
     double r_o[m];
     double r_n[m];
@@ -456,8 +456,8 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
 
         if (c_norm_1(X, Y, m) < eps) {
             count += 1;
-            if (count == 5) {
-                cout << "conjugate converged for " << i + 1 << " steps" << endl;
+            if (count == 3) {
+                cout << "conjugate converged for " << i << " steps" << endl;
                 break;
             }
         } else {
@@ -476,6 +476,7 @@ void conjug(double **A, double *Y, double *X, double *B, int m, int n, double ep
         i++;
     }
 }
+
 double calc_abs_err_1(double *A, double *B, int n) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
@@ -483,6 +484,7 @@ double calc_abs_err_1(double *A, double *B, int n) {
     }
     return result;
 }
+
 double calc_abs_err_2(double *A, double *B, int n) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
@@ -490,6 +492,7 @@ double calc_abs_err_2(double *A, double *B, int n) {
     }
     return sqrt(result);
 }
+
 double calc_abs_err_cheb(double *A, double *B, int n) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
@@ -499,6 +502,7 @@ double calc_abs_err_cheb(double *A, double *B, int n) {
     }
     return result;
 }
+
 double calc_rel_err_1(double *A, double *B, int n) {
     double eps = 0.000001;
     double num = 0.0;
@@ -514,6 +518,7 @@ double calc_rel_err_1(double *A, double *B, int n) {
     }
     return num / den;
 }
+
 double calc_rel_err_2(double *A, double *B, int n) {
     double eps = 0.000001;
     double num = 0.0;
@@ -550,7 +555,8 @@ double calc_rel_err_cheb(double *A, double *B, int n) {
     return num / den;
 }
 
-void write_e(double* X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, double *X_conj, int m, string filename) {
+void
+write_e(double *X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, double *X_conj, int m, string filename) {
     ofstream fout(filename);
     fout << fixed;
     fout.precision(6);
@@ -606,10 +612,7 @@ void write_e(double* X_e, double *X_g, double *X_LU, double *X_hol, double *X_re
          << setw(15) << left << calc_rel_err_cheb(X_e, X_rel, m)
          << setw(15) << left << calc_rel_err_cheb(X_e, X_conj, m)
          << endl;
-
     fout.close();
-
-
 }
 
 int main() {
@@ -619,10 +622,11 @@ int main() {
     double a = -3.14;
     double b = 3.14;
 
-    double iter_par = 0.0001;
+    double iter_par = 0.000001;
 
     int k = 3;
-    int n = 4;
+    double w = 1.1;
+    int n = 5;
     int m = (n - 1) * k + 1;
     int l = 13;
     double h = (b - a) / (k * (n - 1));
@@ -752,7 +756,7 @@ int main() {
     copy_mat(H, H_t, m, n);
     gauss_H(H, H_t, B_hol, X_hol, m, n);
 
-    over_rel(A, Y_rel, X_rel, B, 1.1, m, n, iter_par);
+    over_rel(A, Y_rel, X_rel, B, w, m, n, iter_par);
 
     conjug(A, Y_conj, X_conj, B, m, n, iter_par);
 
@@ -761,15 +765,15 @@ int main() {
         X_e[i] = X_E(i);
     }
 
-    write_e(X_e,X_g,X_LU,X_hol,X_rel,X_conj,m,"Xerrors");
+    write_e(X_e, X_g, X_LU, X_hol, X_rel, X_conj, m, "Xerrors");
 
-    mat_vec(A,X_g,AX_g,m,n);
-    mat_vec(A,X_LU,AX_LU,m,n);
-    mat_vec(A,X_hol,AX_hol,m,n);
-    mat_vec(A,X_rel,AX_rel,m,n);
-    mat_vec(A,X_conj,AX_conj,m,n);
+    mat_vec(A, X_g, AX_g, m, n);
+    mat_vec(A, X_LU, AX_LU, m, n);
+    mat_vec(A, X_hol, AX_hol, m, n);
+    mat_vec(A, X_rel, AX_rel, m, n);
+    mat_vec(A, X_conj, AX_conj, m, n);
 
-    write_e(B,AX_g,AX_LU,AX_hol,AX_rel,AX_conj,m,"Residuals");
+    write_e(B, AX_g, AX_LU, AX_hol, AX_rel, AX_conj, m, "Residuals");
 
     return 0;
 }
