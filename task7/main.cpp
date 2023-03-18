@@ -21,13 +21,13 @@ double fi2_(double x) {
     return  log(x+2);
 }
 
-void s_iter(double *X0, double *X, double eps,int left) {
+void s_iter(double *X0, double *X, double eps,bool left) {
     int i = 1;
     double x_p = X0[0];
     double y_p = X0[1];
     while (true) {
         double x_c;
-        if(left == 1) {
+        if(left) {
             x_c = fi1_(y_p);
         }
         else{
@@ -54,11 +54,11 @@ int main() {
     double eps = 0.0001;
     double X01[2] = {-0.5, 0.3};
     double X[2];
-    s_iter(X01, X, eps,1);
+    s_iter(X01, X, eps,true);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = 1.1;
     X01[1] = 1.1;
-    s_iter(X01, X, eps,0);
+    s_iter(X01, X, eps,false);
     cout << X[0] << endl << X[1] << endl;
     return 0;
 }
