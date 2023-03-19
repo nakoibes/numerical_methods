@@ -133,6 +133,34 @@ void gauss_s(double **A, double *B, int m, int n, double eps) {
 
 }
 
+//void gauss_s_(double **Aup, double **Adown, double *B, int m, int n, double eps) {
+//    for (int i_h = 0; i_h < m - 1; i_h++) {
+//        for (int j_h = 1; i_h < n; j_h++) {
+//            int fi = i_h + n;
+//            if (fi > m) {
+//                fi = m;
+//            }
+//            int i1 = j_h;
+//            int j1 = i_h;
+//            double koef = -Adown[i1][j1] / Adown[0][j1];
+//            Adown[i1][j1] = 0;
+//            for (int k = i_h + 1; k < fi; k++) {
+//                if (i_h + j_h >= k) {
+//                    i1 = i_h+j_h-k;
+//                    j1 = k;
+//                    Adown[i1][j1] += A[i][k] * koef;
+//                }
+//                else{
+//                    i1 = k-i_h-j_h;
+//                    j1= i_h+j_h;
+//                }
+//
+//                B[i + j] += B[i] * koef;
+//            }
+//        }
+//    }
+//}
+
 void gauss_r(double **A, double *B, int m, int n, double eps) {
     for (int al = m - 1; al > 0; al--) {
         for (int be = 1; be < n; be++) {
@@ -395,12 +423,14 @@ void rel_iter(double **A, double *Y, double *X, double *B, int m, int n, double 
     }
 }
 
-void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int n, double eps) {
+int over_rel(double **A, double *Y, double *X, double *B, double w, int m, int n, double eps, bool silent) {
     int i = 1;
     while (true) {
         rel_iter(A, Y, X, B, m, n, w);
         if (c_norm_1(X, Y, m) < eps) {
-            cout << "relaxation converged for " << i << " steps" << endl;
+            if (!silent) {
+                cout << "relaxation converged for " << i << " steps" << endl;
+            }
             break;
         }
 
@@ -408,12 +438,15 @@ void over_rel(double **A, double *Y, double *X, double *B, double w, int m, int 
             Y[j] = X[j];
         }
         if (i == 10000) {
-            cout << "infinite loop" << endl;
+            if (!silent) {
+                cout << "infinite loop" << endl;
+            }
+
             break;
         }
         i++;
     }
-
+    return i;
 }
 
 void conjug(double **A, double *Y, double *X, double *B, int m, int n, double eps) {
@@ -553,6 +586,24 @@ double calc_rel_err_cheb(double *A, double *B, int n) {
         den = 1.0;
     }
     return num / den;
+}
+
+double opt_w(double **A, double *Y, double *X, double *B, int m, int n, double eps) {
+    double X0[m];
+    copy_vec(Y, X0, m);
+    int best_i = 10000;
+    int cur;
+    double best_w;
+    for (int i = 1; i < 99; i++) {
+        double w = 1 + 0.01 * i;
+        cur = over_rel(A, X0, X, B, w, m, n, eps, true);
+        if (cur < best_i) {
+            best_i = cur;
+            best_w = w;
+        }
+        copy_vec(Y, X0, m);
+    }
+    return best_w;
 }
 
 void
@@ -756,7 +807,8 @@ int main() {
     copy_mat(H, H_t, m, n);
     gauss_H(H, H_t, B_hol, X_hol, m, n);
 
-    over_rel(A, Y_rel, X_rel, B, w, m, n, iter_par);
+    w = opt_w(A, Y_rel, X_rel, B, m, n, iter_par);
+    over_rel(A, Y_rel, X_rel, B, w, m, n, iter_par, false);
 
     conjug(A, Y_conj, X_conj, B, m, n, iter_par);
 
