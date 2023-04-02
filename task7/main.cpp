@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include <functional>
+#include <fstream>
 
 using namespace std;
 
@@ -80,92 +80,7 @@ double df2dy_d(double x, double y, double h) {
     return (f2(x, y + h) - f1(x, y)) / h;
 }
 
-void newton(double *X0, double *X, double eps) {
-    int i = 1;
-    double x_p = X0[0];
-    double y_p = X0[1];
-    while (true) {
-        double x_c = x_p + (-f1(x_p, y_p) * df2dy(x_p, y_p) + f2(x_p, y_p) * df1dy(x_p, y_p)) /
-                           (df1dx(x_p, y_p) * df2dy(x_p, y_p) - df1dy(x_p, y_p) * df2dx(x_p, y_p));
-        double y_c = y_p + (-df1dx(x_p, y_p) * f2(x_p, y_p) + f1(x_p, y_p) * df2dx(x_p, y_p)) /
-                           (df1dx(x_p, y_p) * df2dy(x_p, y_p) - df1dy(x_p, y_p) * df2dx(x_p, y_p));
-
-        if (abs(x_p - x_c) + abs(y_p - y_c) < eps) {
-            X[0] = x_c;
-            X[1] = y_c;
-            cout << "newton converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl;
-            break;
-        }
-        if (i == 10000) {
-            cout << "INFINITE LOOP" << endl;
-            break;
-        }
-        x_p = x_c;
-        y_p = y_c;
-        i++;
-    }
-
-}
-
-void newton_c(double *X0, double *X, double eps) {
-    int i = 1;
-    double x_p = X0[0];
-    double y_p = X0[1];
-    double d1 = df1dx(x_p, y_p);
-    double d2 = df1dy(x_p, y_p);
-    double d3 = df2dx(x_p, y_p);
-    double d4 = df2dy(x_p, y_p);
-    while (true) {
-        double x_c = x_p + (-f1(x_p, y_p) * d4 + f2(x_p, y_p) * d2) /
-                           (d1 * d4 - d2 * d3);
-        double y_c = y_p + (-d1 * f2(x_p, y_p) + f1(x_p, y_p) * d3) /
-                           (d1 * d4 - d2 * d3);
-
-        if (abs(x_p - x_c) + abs(y_p - y_c) < eps) {
-            X[0] = x_c;
-            X[1] = y_c;
-            cout << "newton_c converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl;
-            break;
-        }
-        if (i == 10000) {
-            cout << "INFINITE LOOP" << endl;
-            break;
-        }
-        x_p = x_c;
-        y_p = y_c;
-        i++;
-    }
-}
-
-void newton_d(double *X0, double *X, double eps) {
-    int i = 1;
-    double h = 0.01;
-    double x_p = X0[0];
-    double y_p = X0[1];
-    while (true) {
-        double x_c = x_p + (-f1(x_p, y_p) * df2dy_d(x_p, y_p, h) + f2(x_p, y_p) * df1dy_d(x_p, y_p, h)) /
-                           (df1dx_d(x_p, y_p, h) * df2dy_d(x_p, y_p, h) - df1dy_d(x_p, y_p, h) * df2dx_d(x_p, y_p, h));
-        double y_c = y_p + (-df1dx(x_p, y_p) * f2(x_p, y_p) + f1(x_p, y_p) * df2dx_d(x_p, y_p, h)) /
-                           (df1dx_d(x_p, y_p, h) * df2dy_d(x_p, y_p, h) - df1dy_d(x_p, y_p, h) * df2dx_d(x_p, y_p, h));
-
-        if (abs(x_p - x_c) + abs(y_p - y_c) < eps) {
-            X[0] = x_c;
-            X[1] = y_c;
-            cout << "newton_c converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl;
-            break;
-        }
-        if (i == 10000) {
-            cout << "INFINITE LOOP" << endl;
-            break;
-        }
-        x_p = x_c;
-        y_p = y_c;
-        i++;
-    }
-
-}
-
-void newton_(double *X0, double *X, double eps, bool con, bool dis, string o_str) {
+double newton(double *X0, double *X, double eps, bool con, bool dis, string o_str,bool sile) {
     int i = 1;
     double h = 0.01;
     double x_p = X0[0];
@@ -208,12 +123,16 @@ void newton_(double *X0, double *X, double eps, bool con, bool dis, string o_str
         if (abs(x_p - x_c) + abs(y_p - y_c) < eps) {
             X[0] = x_c;
             X[1] = y_c;
-            cout << o_str << " converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl << endl;
-            break;
+            if(!sile) {
+                cout << o_str << " converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl;
+            }
+            return i;
         }
-        if (i == 10000) {
-            cout << "INFINITE LOOP" << endl << endl;
-            break;
+        if (i == 5000) {
+            if(!sile) {
+                cout << "INFINITE LOOP" << endl << endl;
+            }
+            return 5000;
         }
         x_p = x_c;
         y_p = y_c;
@@ -222,11 +141,50 @@ void newton_(double *X0, double *X, double eps, bool con, bool dis, string o_str
     }
 }
 
-
+void root_a(double** XY,double* X01,double* X,double eps,int k,double s_x,double s_y){
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < k; j++) {
+            X01[0] = s_x + 1.0/k*i;
+            X01[1] = s_y + 1.0/k*j;
+            XY[i][j] = newton(X01, X, eps, false, true, "newton_d",true);
+        }
+    }
+}
+void write_d(double **XY1,double **XY2,int k) {
+    ofstream fout("dots.txt");
+    fout << k << endl;
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < k; j++) {
+            fout << XY1[i][j] << " ";
+        }
+        fout << endl;
+    }
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < k; j++) {
+            fout << XY2[i][j] << " ";
+        }
+        fout << endl;
+    }
+    fout.close();
+}
 int main() {
     double eps = 0.000001;
     double X01[2] = {-0.5, 0.3};
     double X[2];
+
+    int k=100;
+
+    double **XY1 = new double *[k];
+    for (int i = 0; i < k; i++) {
+        XY1[i] = new double[k];
+    }
+    double **XY2 = new double *[k];
+    for (int i = 0; i < k; i++) {
+        XY2[i] = new double[k];
+    }
+
+
+//    system("python3 vis.py");
 
     simple(X01, X, eps, true);
     cout << X[0] << endl << X[1] << endl;
@@ -237,30 +195,34 @@ int main() {
 
     X01[0] = -0.5;
     X01[1] = 0.3;
-    newton_(X01, X, eps, false, false, "newton");
+    newton(X01, X, eps, false, false, "newton",false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = 1.1;
     X01[1] = 1.1;
-    newton_(X01, X, eps, false, false, "newton");
+    newton(X01, X, eps, false, false, "newton",false);
     cout << X[0] << endl << X[1] << endl;
 
     X01[0] = -0.5;
     X01[1] = 0.3;
-    newton_(X01, X, eps, true, false, "newton_c");
+    newton(X01, X, eps, true, false, "newton_c",false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = 1.1;
     X01[1] = 1.1;
-    newton_(X01, X, eps, true, false, "newton_c");
+    newton(X01, X, eps, true, false, "newton_c",false);
     cout << X[0] << endl << X[1] << endl;
 
     X01[0] = -0.5;
     X01[1] = 0.3;
-    newton_(X01, X, eps, false, true, "newton_d");
+    newton(X01, X, eps, false, true, "newton_d",false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = 1.1;
     X01[1] = 1.1;
-    newton_(X01, X, eps, false, true, "newton_d");
+    newton(X01, X, eps, false, true, "newton_d",false);
     cout << X[0] << endl << X[1] << endl;
+
+//    root_a(XY1,X01,X,eps,k,-1.1,-0.15);
+//    root_a(XY2,X01,X,eps,k,0.6,0.6);
+//    write_d(XY1,XY2,k);
 
     return 0;
 }
