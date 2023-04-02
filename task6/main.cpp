@@ -827,5 +827,28 @@ int main() {
 
     write_e(B, AX_g, AX_LU, AX_hol, AX_rel, AX_conj, m, "Residuals");
 
+    for (int i = 0; i < k; i++) {
+        delete[] args[i];
+        delete[] random_args[i];
+    }
+    for (int i = 0; i < n; i++) {
+        delete[] A[i];
+        delete[] L[i];
+        delete[] H[i];
+        delete[] H_t[i];
+        delete[] U[i];
+    }
+    for (int i = 0; i < 2*n-1; i++) {
+        delete[] A_g[i];
+    }
+    delete[] args;
+    delete[] random_args;
+    delete[] A;
+    delete[] L;
+    delete[] H;
+    delete[] H_t;
+    delete[] U;
+    delete[] A_g;
+
     return 0;
 }
