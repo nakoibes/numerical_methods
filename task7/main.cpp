@@ -220,9 +220,16 @@ int main() {
     newton(X01, X, eps, false, true, "newton_d",false);
     cout << X[0] << endl << X[1] << endl;
 
-//    root_a(XY1,X01,X,eps,k,-1.1,-0.15);
-//    root_a(XY2,X01,X,eps,k,0.6,0.6);
-//    write_d(XY1,XY2,k);
+    root_a(XY1,X01,X,eps,k,-1.1,-0.15);
+    root_a(XY2,X01,X,eps,k,0.6,0.6);
+    write_d(XY1,XY2,k);
+
+    for (int i = 0; i < k; i++) {
+        delete[] XY1[i];
+        delete[] XY2[i];
+    }
+    delete[] XY1;
+    delete[] XY2;
 
     return 0;
 }
