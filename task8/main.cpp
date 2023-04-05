@@ -28,6 +28,17 @@ void eil(double *Y1, double *Y2, double *X, int n, double h) {
     }
 }
 
+void eil_mod(double *Y1, double *Y2, double *X, int n, double h) {
+    double Y1_[n];
+    double Y2_[n];
+    for (int i = 1; i < n; i++) {
+        Y1_[i] = Y1[i - 1] + h * f1(X[i-1], Y1[i-1], Y2[i-1]);
+        Y2_[i] = Y2[i - 1] + h * f2(X[i-1], Y1[i-1], Y2[i-1]);
+        Y1[i] = Y1[i - 1] + h * (f1(X[i-1], Y1[i-1], Y2[i-1])+f1(X[i], Y1_[i], Y2_[i]))/2.0;
+        Y2[i] = Y2[i - 1] + h * (f2(X[i-1], Y1[i-1], Y2[i-1])+f2(X[i], Y1_[i], Y2_[i]))/2.0;
+    }
+}
+
 void write_f(double *x,double* y, int n) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n; i++) {
@@ -58,8 +69,8 @@ int main() {
     Y1[0] = 0;
     Y2[0] = 0;
     f_even_args(X,n,a,b);
-    eil(Y1,Y2,X,n,h);
+    eil_mod(Y1,Y2,X,n,h);
     write_f(X,Y1,n);
-
+    system("python3 vis.py");
     return 0;
 }
