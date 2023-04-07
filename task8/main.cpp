@@ -486,6 +486,8 @@ void write_errs1(double *Y1_e_h, double *Y2_e_h, double *Y1_e_m_h, double *Y2_e_
 int main() {
     double a = 0.0;
     double b = 1.0;
+    double y0 = 0;
+    double y0_s = 0;
     int n1 = 101;
     int n2 = (n1 - 1) / 2 + 1;
     int n3 = (n1 - 1) * 2 + 1;
@@ -499,79 +501,79 @@ int main() {
 
     double Y1_e_h[n1];
     double Y2_e_h[n1];
-    Y1_e_h[0] = 0;
-    Y2_e_h[0] = 0;
+    Y1_e_h[0] = y0;
+    Y2_e_h[0] = y0_s;
 
     double Y1_e_m_h[n1];
     double Y2_e_m_h[n1];
-    Y1_e_m_h[0] = 0;
-    Y2_e_m_h[0] = 0;
+    Y1_e_m_h[0] = y0;
+    Y2_e_m_h[0] = y0_s;
 
     double Y1_rk2_h[n1];
     double Y2_rk2_h[n1];
-    Y1_rk2_h[0] = 0;
-    Y2_rk2_h[0] = 0;
+    Y1_rk2_h[0] = y0;
+    Y2_rk2_h[0] = y0_s;
 
     double Y1_rk4_h[n1];
     double Y2_rk4_h[n1];
-    Y1_rk4_h[0] = 0;
-    Y2_rk4_h[0] = 0;
+    Y1_rk4_h[0] = y0;
+    Y2_rk4_h[0] = y0_s;
 
     double Y1_a_h[n1];
     double Y2_a_h[n1];
-    Y1_a_h[0] = 0;
-    Y2_a_h[0] = 0;
+    Y1_a_h[0] = y0;
+    Y2_a_h[0] = y0_s;
 
 
     double Y1_e_h2[n3];
     double Y2_e_h2[n3];
-    Y1_e_h2[0] = 0;
-    Y2_e_h2[0] = 0;
+    Y1_e_h2[0] = y0;
+    Y2_e_h2[0] = y0_s;
 
     double Y1_e_m_h2[n3];
     double Y2_e_m_h2[n3];
-    Y1_e_m_h2[0] = 0;
-    Y2_e_m_h2[0] = 0;
+    Y1_e_m_h2[0] = y0;
+    Y2_e_m_h2[0] = y0_s;
 
     double Y1_rk2_h2[n3];
     double Y2_rk2_h2[n3];
-    Y1_rk2_h2[0] = 0;
-    Y2_rk2_h2[0] = 0;
+    Y1_rk2_h2[0] = y0;
+    Y2_rk2_h2[0] = y0_s;
 
     double Y1_rk4_h2[n3];
     double Y2_rk4_h2[n3];
-    Y1_rk4_h2[0] = 0;
-    Y2_rk4_h2[0] = 0;
+    Y1_rk4_h2[0] = y0;
+    Y2_rk4_h2[0] = y0_s;
 
     double Y1_a_h2[n3];
     double Y2_a_h2[n3];
-    Y1_a_h2[0] = 0;
-    Y2_a_h2[0] = 0;
+    Y1_a_h2[0] = y0;
+    Y2_a_h2[0] = y0_s;
 
     double Y1_e_2h[n2];
     double Y2_e_2h[n2];
-    Y1_e_2h[0] = 0;
-    Y2_e_2h[0] = 0;
+    Y1_e_2h[0] = y0;
+    Y2_e_2h[0] = y0_s;
 
     double Y1_e_m_2h[n2];
     double Y2_e_m_2h[n2];
-    Y1_e_m_2h[0] = 0;
-    Y2_e_m_2h[0] = 0;
+    Y1_e_m_2h[0] = y0;
+    Y2_e_m_2h[0] = y0_s;
 
     double Y1_rk2_2h[n2];
     double Y2_rk2_2h[n2];
-    Y1_rk2_2h[0] = 0;
-    Y2_rk2_2h[0] = 0;
+    Y1_rk2_2h[0] = y0;
+    Y2_rk2_2h[0] = y0_s;
 
     double Y1_rk4_2h[n2];
     double Y2_rk4_2h[n2];
-    Y1_rk4_2h[0] = 0;
-    Y2_rk4_2h[0] = 0;
+    Y1_rk4_2h[0] = y0;
+    Y2_rk4_2h[0] = y0_s;
 
     double Y1_a_2h[n2];
     double Y2_a_2h[n2];
-    Y1_a_2h[0] = 0;
-    Y2_a_2h[0] = 0;
+    Y1_a_2h[0] = y0;
+    Y2_a_2h[0] = y0_s;
 
     f_even_args(X_h, n1, a, b);
     f_even_args(X_h2, n3, a, b);
