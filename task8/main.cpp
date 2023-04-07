@@ -603,6 +603,6 @@ int main() {
 
     write_f(Y1_e_h, Y1_e_m_h, Y1_rk2_h, Y1_rk4_h, Y1_a_h,
             Y2_e_h, Y2_e_m_h, Y2_rk2_h, Y2_rk4_h, Y2_a_h, X_h, n1);
-//    system("python3 vis.py");
+    system("python3 vis.py");
     return 0;
 }

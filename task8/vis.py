@@ -14,11 +14,7 @@ if __name__ == '__main__':
         y2_rk4 = list(map(float, f.readline().split()))
         y2_a = list(map(float, f.readline().split()))
 
-    # y_max = max(max(f_vals), max(a1_vals),max(a2_vals),max(ar_vals))
-    # y_min = min(min(f_vals), min(a1_vals),min(a2_vals),min(ar_vals))
     plt.xlim(x[0], x[len(x) - 1])
-    # plt.ylim(y_min - 1, y_max + 1)
-    # plt.plot(f_args, f_vals, color="blue", linewidth=1, label='dy/dx')
     plt.plot(x, y1_e, color="orange", linewidth=0.5, label='eil')
     plt.plot(x, y1_e_m, color="red", linewidth=0.5, label='eil mod')
     plt.plot(x, y1_rk2, color="black", linewidth=0.5, label='rk2')
