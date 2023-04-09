@@ -29,6 +29,14 @@ void eil(double *Y1, double *Y2, double *X, int n, double h) {
     }
 }
 
+double norm_1(double* vec,int n){
+    double res = 0.0;
+    for (int i = 0; i < n; i++) {
+        res+=abs(vec[i]);
+    }
+    return res;
+}
+
 void eil_mod(double *Y1, double *Y2, double *X, int n, double h) {
     double Y1_[n];
     double Y2_[n];
@@ -483,12 +491,18 @@ void write_errs1(double *Y1_e_h, double *Y2_e_h, double *Y1_e_m_h, double *Y2_e_
     fout.close();
 }
 
+void ruro(double *ksi1, double *ksi2, double *E, int p, int n) {
+    for (int i = 0; i < n; i++) {
+        E[i] = (ksi1[2 * i] - ksi2[i]) / (pow(2, p) - 1);
+    }
+}
+
 int main() {
     double a = 0.0;
     double b = 1.0;
     double y0 = 0;
     double y0_s = 0;
-    int n1 = 101;
+    int n1 = 1001;
     int n2 = (n1 - 1) / 2 + 1;
     int n3 = (n1 - 1) * 2 + 1;
     double h1 = (b - a) / (n1 - 1);
@@ -498,6 +512,8 @@ int main() {
     double X_h[n1];
     double X_h2[n3];
     double X_2h[n2];
+
+    double E_eil[n1];
 
     double Y1_e_h[n1];
     double Y2_e_h[n1];
@@ -597,6 +613,8 @@ int main() {
     ru_ku4(Y1_rk4_2h, Y2_rk4_2h, X_2h, n2, h2);
     adams(Y1_a_2h, Y2_a_2h, X_2h, n2, h2);
 
+    ruro(Y1_e_h2,Y1_e_h,E_eil,2,n1);
+    cout << "eil err " << norm_1(E_eil,n1) << endl;
 
     write_errs1(Y1_e_h, Y2_e_h, Y1_e_m_h, Y2_e_m_h, Y1_rk2_h, Y2_rk2_h, Y1_rk4_h, Y2_rk4_h, Y1_a_h, Y2_a_h, Y1_e_h2,
                 Y2_e_h2, Y1_e_m_h2, Y2_e_m_h2, Y1_rk2_h2, Y2_rk2_h2, Y1_rk4_h2, Y2_rk4_h2, Y1_a_h2, Y2_a_h2, Y1_e_2h,
