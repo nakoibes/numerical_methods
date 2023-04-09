@@ -169,10 +169,15 @@ void write_d(double **XY1,double **XY2,int k) {
 }
 int main() {
     double eps = 0.000001;
-    double X01[2] = {-0.5, 0.3};
+    double X01[2];
     double X[2];
 
     int k=100;
+
+    double x1 = -0.5;
+    double y1 = 0.3;
+    double x2 = 1.1;
+    double y2 = 1.1;
 
     double **XY1 = new double *[k];
     for (int i = 0; i < k; i++) {
@@ -185,38 +190,39 @@ int main() {
 
 
 //    system("python3 vis.py");
-
+    X01[0] = x1;
+    X01[1] = y1;
     simple(X01, X, eps, true);
     cout << X[0] << endl << X[1] << endl;
-    X01[0] = 1.1;
-    X01[1] = 1.1;
+    X01[0] = x2;
+    X01[1] = y2;
     simple(X01, X, eps, false);
     cout << X[0] << endl << X[1] << endl;
 
-    X01[0] = -0.5;
-    X01[1] = 0.3;
+    X01[0] = x1;
+    X01[1] =y1;
     newton(X01, X, eps, false, false, "newton",false);
     cout << X[0] << endl << X[1] << endl;
-    X01[0] = 1.1;
-    X01[1] = 1.1;
+    X01[0] = x2;
+    X01[1] = y2;
     newton(X01, X, eps, false, false, "newton",false);
     cout << X[0] << endl << X[1] << endl;
 
-    X01[0] = -0.5;
-    X01[1] = 0.3;
+    X01[0] = x1;
+    X01[1] = y1;
     newton(X01, X, eps, true, false, "newton_c",false);
     cout << X[0] << endl << X[1] << endl;
-    X01[0] = 1.1;
-    X01[1] = 1.1;
+    X01[0] = x2;
+    X01[1] = y2;
     newton(X01, X, eps, true, false, "newton_c",false);
     cout << X[0] << endl << X[1] << endl;
 
-    X01[0] = -0.5;
-    X01[1] = 0.3;
+    X01[0] = x1;
+    X01[1] = y1;
     newton(X01, X, eps, false, true, "newton_d",false);
     cout << X[0] << endl << X[1] << endl;
-    X01[0] = 1.1;
-    X01[1] = 1.1;
+    X01[0] = x2;
+    X01[1] = y2;
     newton(X01, X, eps, false, true, "newton_d",false);
     cout << X[0] << endl << X[1] << endl;
 
