@@ -125,7 +125,7 @@ void ru_ku4(double *Y1, double *Y2, double *X, int n, double h) {
 }
 
 void adams(double *Y1, double *Y2, double *X, int n, double h) {
-    for (int i = 1; i < 4; i++) {
+    for (int i = 1; i < 3; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
         double k2 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
         double k3 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
@@ -137,7 +137,7 @@ void adams(double *Y1, double *Y2, double *X, int n, double h) {
         k4 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
         Y2[i] = Y2[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
     }
-    for (int i = 4; i < n; i++) {
+    for (int i = 3; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
         double k2 = h * f1(X[i - 2], Y1[i - 2], Y2[i - 2]);
         double k3 = h * f1(X[i - 3], Y1[i - 3], Y2[i - 3]);
@@ -500,9 +500,9 @@ void ruro(double *ksi1, double *ksi2, double *E, int p, int n) {
 int main() {
     double a = 0.0;
     double b = 1.0;
-    double y0 = 0;
-    double y0_s = 0;
-    int n1 = 1001;
+    double y0 = 0.0;
+    double y0_s = 0.0;
+    int n1 = 101;
     int n2 = (n1 - 1) / 2 + 1;
     int n3 = (n1 - 1) * 2 + 1;
     double h1 = (b - a) / (n1 - 1);
@@ -613,8 +613,8 @@ int main() {
     ru_ku4(Y1_rk4_2h, Y2_rk4_2h, X_2h, n2, h2);
     adams(Y1_a_2h, Y2_a_2h, X_2h, n2, h2);
 
-    ruro(Y1_e_h2,Y1_e_h,E_eil,2,n1);
-    cout << "eil err " << norm_1(E_eil,n1) << endl;
+    ruro(Y1_e_h2,Y1_e_h,E_eil,1,n1);
+    cout << "eil err " << E_eil[n1-1] << endl;
 
     write_errs1(Y1_e_h, Y2_e_h, Y1_e_m_h, Y2_e_m_h, Y1_rk2_h, Y2_rk2_h, Y1_rk4_h, Y2_rk4_h, Y1_a_h, Y2_a_h, Y1_e_h2,
                 Y2_e_h2, Y1_e_m_h2, Y2_e_m_h2, Y1_rk2_h2, Y2_rk2_h2, Y1_rk4_h2, Y2_rk4_h2, Y1_a_h2, Y2_a_h2, Y1_e_2h,
