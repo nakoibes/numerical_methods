@@ -32,8 +32,6 @@ void formA(double **A, double *X, double h, int n) {
         A[i][0] = (-4.0 - 2.0*h*h*q(X[i + 1])) / (2.0 * h * h);
         A[i][1] = (2.0 - p(X[i + 1]) * h) / (2.0 * h * h);;
     }
-    A[0][2] = 0.0;
-    A[n - 1][1] = 0.0;
 }
 
 void prog(double **M, double *Y, double *F, int n) {
@@ -66,21 +64,13 @@ void f_diff(double *X, double *Y, double h, int n, double ya, double yb) {
     }
 
     formA(A, X, h, n - 2);
-
-//    for (int i = 0; i < n - 2; i++) {
-//        for (int j = 0; j < 3; j++) {
-//            cout << A[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-
-
+    
     for (int i = 1; i < n - 2; i++) {
         F_p[i - 1] = f(X[i]);
     }
 
     F_p[0] -= A[0][2] * ya;
-    F_p[n - 1] -= A[0][1] * yb;
+    F_p[n - 3] -= A[n-3][1] * yb;
 
 
     prog(A, Y_p, F_p, n - 2);
@@ -89,12 +79,6 @@ void f_diff(double *X, double *Y, double h, int n, double ya, double yb) {
         Y[i] = Y_p[i - 1];
     }
 
-}
-
-void formF(double *F, double *X, int n) {
-    for (int i = 1; i < n - 1; i++) {
-        F[i] = f(X[i]);
-    }
 }
 
 void write_f(double *Y1_ra, double *X, int n) {
@@ -115,9 +99,9 @@ void write_f(double *Y1_ra, double *X, int n) {
 int main() {
     double a = 0.0;
     double b = 1.0;
-    double ya = 0.0;
-    double yb = 0.0;
-    int n1 = 17;
+    double ya = 1.0;
+    double yb = 1.0;
+    int n1 = 107;
     double h1 = (b - a) / (n1 - 1);
 
     double X_h[n1];
