@@ -26,7 +26,7 @@ void f_even_args(double *args, int n, double a, double b) {
     }
 }
 
-void formA(double **A, double *X, double h, int n) {
+void formA(double **A,double *X, double h, int n) {
     for (int i = 0; i < n; i++) {
         A[i][2] = (2.0 + p(X[i + 1]) * h) / (2.0 * h * h);
         A[i][0] = (-4.0 - 2.0 * h * h * q(X[i + 1])) / (2.0 * h * h);
@@ -53,7 +53,7 @@ void prog(double **M, double *Y, double *F, int n) {
 }
 
 
-void f_diff(double *X, double *Y, double h, int n) {
+void f_diff( double *Y,double *X, double h, int n) {
 
     double F_p[n - 2];
     double Y_p[n - 2];
@@ -81,15 +81,29 @@ void f_diff(double *X, double *Y, double h, int n) {
 
 }
 
-void write_f(double *Y1_ra, double *X, int n) {
+void write_f(double *Y1, double *Y2, double *Y3, double *Y4, double *X, int n) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n; i++) {
         fout << X[i] << " ";
     }
     fout << endl;
     for (int i = 0; i < n; i++) {
-        fout << Y1_ra[i] << " ";
+        fout << Y1[i] << " ";
     }
+    fout << endl;
+    for (int i = 0; i < n; i++) {
+        fout << Y2[i] << " ";
+    }
+
+    fout << endl;
+    for (int i = 0; i < n; i++) {
+        fout << Y3[i] << " ";
+    }
+    fout << endl;
+    for (int i = 0; i < n; i++) {
+        fout << Y4[i] << " ";
+    }
+    fout << endl;
 
 
     fout.close();
@@ -103,39 +117,58 @@ double f2(double x, double y1, double y2) {
     return y2 * exp(x) + y1 * x * x + sin(x);
 }
 
+double f2_2(double x, double y1, double y2) {
+    return y2*y2 * exp(x) + y1*y1 * x * x + sin(x);
+}
+
 double g(double x, double y1, double y2, double Y, double U) {
     return 2 * y1 * x * x * Y + 2 * y2 * exp(x) * U;
-//    return y2 * exp(x) + y1 * x * x + sin(x);
 }
 
 void ru_ku4(double *Y1, double *Y2, double *X, int n, double h) {
 
     for (int i = 1; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        double k2 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        double k3 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        double k4 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
-        Y1[i] = Y1[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
+        double k2 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        double k3 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        Y1[i] = Y1[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
         k1 = h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        k2 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        k3 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        k4 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
+        k2 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        k3 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        k4 = h * f2(X[i - 1] + h , Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
         Y2[i] = Y2[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
     }
 }
 
-void ru_ku4_g(double *Y1, double *Y2, double *X, double *y, double *u,double* y2,double*u2, int n, double h) {
+void ru_ku4_2(double *Y1, double *Y2, double *X, int n, double h) {
 
     for (int i = 1; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        double k2 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        double k3 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        double k4 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
+        double k2 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        double k3 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        Y1[i] = Y1[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
+        k1 = h * f2_2(X[i - 1], Y1[i - 1], Y2[i - 1]);
+        k2 = h * f2_2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        k3 = h * f2_2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        k4 = h * f2_2(X[i - 1] + h , Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        Y2[i] = Y2[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
+    }
+}
+
+void ru_ku4_g(double *Y1, double *Y2, double *X, double *y, double *u, int n, double h) {
+
+    for (int i = 1; i < n; i++) {
+        double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
+        double k2 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        double k3 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
         Y1[i] = Y1[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
         k1 = h * g(X[i - 1], y[i - 1], u[i - 1], Y1[i - 1], Y2[i - 1]);
-        k2 = h * g(X[i - 1] + h / 2, y2[i - 1], u2[i - 1], Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        k3 = h * g(X[i - 1] + h / 2, y2[i - 1], u2[i - 1], Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        k4 = h * g(X[i - 1] + h / 2, y2[i - 1], u2[i - 1], Y1[i - 1] + k3, Y2[i - 1] + k3);
+        k2 = h * g(X[i - 1] + h / 2.0, y[i - 1]+ h*k1 / 2.0, u[i - 1]+ h*k1 / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        k3 = h * g(X[i - 1] + h / 2.0, y[i - 1]+h*k2 / 2.0, u[i - 1]+h*k2 / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        k4 = h * g(X[i - 1] + h, y[i - 1]+ h*k3, u[i - 1]+ h*k3, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
         Y2[i] = Y2[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
     }
 }
@@ -201,65 +234,90 @@ void shoot(double *Y, double *X, int n, double h) {
 
 void newton(double *Y, double *X, int n, double h, bool sec) {
     double eps = 0.0001;
-    double s = 0;
+    double s = 0.0;
     double yb = Y[n - 1];
     double ya = Y[0];
     double fi_s;
     double fi_s_h;
     double h_d = 0.01;
     double U1[n];
+
+
+//    double U4[n-1];
+//    double Y4[n-1];
+
     double Y2[n];
-
-    double U4[n];
-    double Y4[n];
-
     double U2[n];
-
     Y2[0] = 0.0;
     U2[0] = 1.0;
 
-    double Y3[2*n-1];
-    double Xh2[2*n-1];
-    f_even_args(Xh2,2*n-1,0.0,1.0);//todo
-    double U3[2*n-1];
-    double h2 = h/2.0;
-    Y3[0] = ya;
+    double Y5[n];
+    double U5[n];
+    Y5[0] = ya;
+
+    double Y6[n];
+    double U6[n];
+    Y6[0] = ya;
+
+
+//    double Y3[2 * n - 1];
+//    double Xh2[2 * n - 1];
+//    f_even_args(Xh2, 2 * n - 1, 0.0, 1.0);//todo
+//    double U3[2 * n - 1];
+//    double h2 = h / 2.0;
+//    Y3[0] = ya;
 
     int i = 1;
     double s_n;
     double dfi;
+    double dfi_;
     while (true) {
         if (sec) {
             U1[0] = s + h_d;
-            ru_ku4(Y, U1, X, n, h);
+            ru_ku4_2(Y, U1, X, n, h);
             fi_s_h = Y[n - 1] - yb;
             U1[0] = s;
-            ru_ku4(Y, U1, X, n, h);
+            ru_ku4_2(Y, U1, X, n, h);
             fi_s = Y[n - 1] - yb;
             dfi = ((fi_s_h - fi_s) / h_d);
         } else {
-            U3[0] = s;
-            ru_ku4(Y3, U3, Xh2, 2*n-1, h2);
 
+
+            U5[0] = s + h_d;
+            ru_ku4_2(Y5, U5, X, n, h);
+            fi_s_h = Y5[n - 1] - yb;
+            U6[0] = s;
+            ru_ku4_2(Y6, U6, X, n, h);
+            fi_s = Y6[n - 1] - yb;
+            dfi_ = ((fi_s_h - fi_s) / h_d);
+
+
+//            U3[0] = s;
             U1[0] = s;
-            ru_ku4(Y, U1, X, n, h);
-            for (int j = 0; j < n; j++) {
-                Y[i] = Y3[2*i];
-            }
-            for (int j = 0; j < n; j++) {
-                U1[i] = U3[2*i];
-            }
+//            ru_ku4(Y3, U3, Xh2, 2 * n - 1, h2);
+            ru_ku4_2(Y, U1, X, n, h);
 
-            for (int j = 0; j < n-1; j++) {
-                Y4[i] = Y3[2*i+1];
-            }
-            for (int j = 0; j < n-1; j++) {
-                U4[i] = U3[2*i+1];
-            }
+//            U1[0] = s;
+//            ru_ku4(Y, U1, X, n, h);
+//            for (int j = 0; j < n; j++) {
+//                Y[j] = Y3[2 * j];
+//            }
+//            for (int j = 0; j < n; j++) {
+//                U1[j] = U3[2 * j];
+//            }
+//
+//            for (int j = 0; j < n - 1; j++) {
+//                Y4[j] = Y3[2 * j + 1];
+//            }
+//            for (int j = 0; j < n - 1; j++) {
+//                U4[j] = U3[2 * j + 1];
+//            }
 
             fi_s = Y[n - 1] - yb;
-            ru_ku4_g(Y2,U2,X,Y,U1,Y4,U4,n,h);
-            dfi = Y2[n-1];
+
+            ru_ku4_g(Y2, U2, X, Y, U1, n, h);
+            dfi = Y2[n - 1];
+            double t = 0;
         }
         s_n = s - fi_s / dfi;
         if (abs(s_n - s) < eps) {
@@ -281,10 +339,11 @@ int main() {
     double b = 1.0;
     double ya = 0.0;
     double yb = 0.0;
-    int n1 = 107;
+    int n1 = 101;
     double h1 = (b - a) / (n1 - 1);
 
     double X_h[n1];
+    double X_h_n[n1];
 
     double Y_ra_h[n1];
     Y_ra_h[0] = ya;
@@ -298,14 +357,20 @@ int main() {
     Y_sec_h[0] = ya;
     Y_sec_h[n1 - 1] = yb;
 
+    double Y_new_h[n1];
+    Y_new_h[0] = ya;
+    Y_new_h[n1 - 1] = yb;
 
     f_even_args(X_h, n1, a, b);
+    f_even_args(X_h_n, n1, a, b);
 
-//    f_diff(X_h, Y_ra_h, h1, n1);
-//    shoot(Y_shoo_h, X_h, n1, h1);
-    newton(Y_sec_h, X_h, n1, h1, false);
+    f_diff(Y_ra_h,X_h, h1, n1);
+    shoot(Y_shoo_h, X_h, n1, h1);
 
-    write_f(Y_sec_h, X_h, n1);
+    newton(Y_sec_h, X_h, n1, h1, true);
+    newton(Y_new_h, X_h, n1, h1, false);
+
+    write_f(Y_ra_h, Y_shoo_h, Y_sec_h, Y_new_h, X_h, n1);
 
 
     return 0;
