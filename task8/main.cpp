@@ -112,15 +112,15 @@ void ru_ku2(double *Y1, double *Y2, double *X, int n, double h, double al) {
 void ru_ku4(double *Y1, double *Y2, double *X, int n, double h) {
     for (int i = 1; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        double k2 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        double k3 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        double k4 = h * f1(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
-        Y1[i] = Y1[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
+        double k2 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        double k3 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        Y1[i] = Y1[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
         k1 = h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        k2 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k1 / 2, Y2[i - 1] + k1 / 2);
-        k3 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k2 / 2, Y2[i - 1] + k2 / 2);
-        k4 = h * f2(X[i - 1] + h / 2, Y1[i - 1] + k3, Y2[i - 1] + k3);
-        Y2[i] = Y2[i - 1] + (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
+        k2 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
+        k3 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        k4 = h * f2(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        Y2[i] = Y2[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
     }
 }
 
