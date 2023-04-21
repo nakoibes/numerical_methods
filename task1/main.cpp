@@ -13,70 +13,70 @@ double random(double min, double max) {
     return (double) (rand()) / RAND_MAX * (max - min) + min;
 }
 
-void f_inter_args(double *args, int length, double a, double b, double delta) {
+void f_i_args(double *args, int n, double a, double b, double eps) {
     args[0] = a;
-    args[length - 1] = b;
+    args[n - 1] = b;
     int i = 1;
-    while (i < length - 1) {
+    while (i < n - 1) {
         double value = random(a, b);
-        bool good_value = true;
+        bool good_v = true;
         for (int j = 0; j < i; j++) {
-            if (abs(args[j] - value) < delta) {
-                good_value = false;
+            if (abs(args[j] - value) < eps) {
+                good_v = false;
                 break;
             }
         }
-        if (good_value) {
+        if (good_v) {
             args[i] = value;
             i++;
         }
     }
 }
 
-void f_inter_vals(double *vals, double *args, function<double(double)> y, int length) {
-    for (int i = 0; i < length; i++) {
-        vals[i] = y(args[i]);
-    }
+//void f_i_vals(double *vals, double *args, function<double(double)> y, int n) {
+//    for (int i = 0; i < n; i++) {
+//        vals[i] = y(args[i]);
+//    }
+//
+//}
 
+void f_even(double *args, int n, double a, double b) {
+    args[0] = a;
+    args[n - 1] = b;
+    double step = (b - a) / (n - 1);
+    for (int i = 1; i < n - 1; i++) {
+        args[i] = args[i - 1] + step;
+    }
 }
 
-void f_repr_args(double *repr_args, int n_repr, double a, double b) {
-    repr_args[0] = a;
-    repr_args[n_repr - 1] = b;
-    double step = (b - a) / (n_repr - 1);
-    for (int i = 1; i < n_repr - 1; i++) {
-        repr_args[i] = repr_args[i - 1] + step;
+void f_vis_vals(double *vis_vals, double *vis_args, double *i_vals, double *i_args, int n_v, int n_i) {
+    for(int i =0; i < n_v; i++){
+        vis_vals[i] = 0;
     }
-}
-
-void f_repr_vals(double *repr_vals, double *repr_args, double *inter_vals, double *inter_args, int n_repr, int n_inter) {
-    for(int i =0;i<n_repr;i++){
-        repr_vals[i] = 0;
-    }
-    double multipliers[n_inter];
-    for (int i = 0; i < n_inter; i++) {
+    double mult[n_i];
+    for (int i = 0; i < n_i; i++) {
         double product = 1;
-        for (int j = 0; j < n_inter; j++) {
+        for (int j = 0; j < n_i; j++) {
             if (j != i) {
-                product = product * (inter_args[i] - inter_args[j]);
+                product = product * (i_args[i] - i_args[j]);
             }
         }
-        multipliers[i] = inter_vals[i] / product;
+        mult[i] = i_vals[i] / product;
     }
-    for (int i = 0; i < n_repr; i++) {
-        for (int k = 0; k < n_inter; k++) {
-            double product = 1;
-            for (int j = 0; j < n_inter; j++) {
+    for (int i = 0; i < n_v; i++) {
+        for (int k = 0; k < n_i; k++) {
+            double prod = 1;
+            for (int j = 0; j < n_i; j++) {
                 if (k != j) {
-                    product = product * (repr_args[i] - inter_args[j]);
+                    prod *= (vis_args[i] - i_args[j]);
                 }
             }
-            repr_vals[i] += multipliers[k] * product;
+            vis_vals[i] += mult[k] * prod;
         }
     }
 }
 
-void write_f(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, int n_inter,
+void write_d(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, int n_inter,
              int n_res) {
     ofstream fout("dots.txt");
     for (int i = 0; i < n_res; i++) {
@@ -101,9 +101,9 @@ void write_f(double *res_args, double *res_vals, double *inter_args, double *int
     fout.close();
 }
 
-void fill_func(double *func, function<double(double)> y, double *res_args, int n_repr) {
-    for (int i = 0; i < n_repr; i++) {
-        func[i] = y(res_args[i]);
+void fill_func(double *vals, function<double(double)> y, double *iter, int n) {
+    for (int i = 0; i < n; i++) {
+        vals[i] = y(iter[i]);
     }
 }
 
@@ -112,27 +112,28 @@ int main() {
 
     function<double(double)> y = func;
 
-    double a = -5;
-    double b = 5;
-    double delta = 0.0001;
-    int n_inter = 15;
-    int n_repr = 2000;
+    double a = -3.14;
+    double b = 3.14;
+    double eps = 0.0001;
+    int n_i = 20;
+    int n_v = 2000;
 
-    double inter_args[n_inter];
-    double inter_vals[n_inter];
-    double repr_args[n_repr];
-    double repr_vals[n_repr];
+    double i_args[n_i];
+    double i_vals[n_i];
+    double v_args[n_v];
+    double v_vals[n_v];
 
-    double func[n_repr];
+    double func[n_v];
 
-    f_inter_args(inter_args, n_inter, a, b, delta);
-    f_inter_vals(inter_vals, inter_args, y, n_inter);
-    f_repr_args(repr_args, n_repr, a, b);
-    f_repr_vals(repr_vals, repr_args, inter_vals, inter_args, n_repr, n_inter);
+    f_i_args(i_args, n_i, a, b, eps);
+    fill_func(i_vals,y, i_args, n_i);
+    f_even(v_args, n_v, a, b);
+    f_vis_vals(v_vals, v_args, i_vals, i_args, n_v, n_i);
 
-    fill_func(func, y, repr_args, n_repr);
+    fill_func(func, y, v_args, n_v);
 
-    write_f(repr_args, repr_vals, inter_args, inter_vals, func, n_inter, n_repr);
-    system("python3 repr.py");
+    write_d(v_args, v_vals, i_args, i_vals, func, n_i, n_v);
+
+    system("python3 vis.py");
     return 0;
 }
