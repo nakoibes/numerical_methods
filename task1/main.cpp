@@ -76,26 +76,25 @@ void f_vis_vals(double *vis_vals, double *vis_args, double *i_vals, double *i_ar
     }
 }
 
-void write_d(double *res_args, double *res_vals, double *inter_args, double *inter_vals, double *func, int n_inter,
-             int n_res) {
+void write_d(double *i_args, double *i_vals, double *i_k_args, double *i_k_vals, double *func, int n_i, int n_v) {
     ofstream fout("dots.txt");
-    for (int i = 0; i < n_res; i++) {
-        fout << res_args[i] << " ";
+    for (int i = 0; i < n_v; i++) {
+        fout << i_args[i] << " ";
     }
     fout << endl;
-    for (int i = 0; i < n_res; i++) {
-        fout << res_vals[i] << " ";
+    for (int i = 0; i < n_v; i++) {
+        fout << i_vals[i] << " ";
     }
     fout << endl;
-    for (int i = 0; i < n_inter; i++) {
-        fout << inter_args[i] << " ";
+    for (int i = 0; i < n_i; i++) {
+        fout << i_k_args[i] << " ";
     }
     fout << endl;
-    for (int i = 0; i < n_inter; i++) {
-        fout << inter_vals[i] << " ";
+    for (int i = 0; i < n_i; i++) {
+        fout << i_k_vals[i] << " ";
     }
     fout << endl;
-    for (int i = 0; i < n_res; i++) {
+    for (int i = 0; i < n_v; i++) {
         fout << func[i] << " ";
     }
     fout.close();
@@ -118,21 +117,21 @@ int main() {
     int n_i = 20;
     int n_v = 2000;
 
-    double i_args[n_i];
-    double i_vals[n_i];
-    double v_args[n_v];
-    double v_vals[n_v];
+    double i_k_args[n_i];
+    double i_k_vals[n_i];
+    double i_args[n_v];
+    double i_vals[n_v];
 
     double func[n_v];
 
-    f_i_args(i_args, n_i, a, b, eps);
-    fill_func(i_vals,y, i_args, n_i);
-    f_even(v_args, n_v, a, b);
-    f_vis_vals(v_vals, v_args, i_vals, i_args, n_v, n_i);
+    f_i_args(i_k_args, n_i, a, b, eps);
+    fill_func(i_k_vals, y, i_k_args, n_i);
+    f_even(i_args, n_v, a, b);
+    f_vis_vals(i_vals, i_args, i_k_vals, i_k_args, n_v, n_i);
 
-    fill_func(func, y, v_args, n_v);
+    fill_func(func, y, i_args, n_v);
 
-    write_d(v_args, v_vals, i_args, i_vals, func, n_i, n_v);
+    write_d(i_args, i_vals, i_k_args, i_k_vals, func, n_i, n_v);
 
     system("python3 vis.py");
     return 0;
