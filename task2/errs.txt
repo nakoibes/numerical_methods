@@ -1,6 +1,0 @@
-abs_err_1 8.66454e-11
-abs_err_2 1.31394e-22
-abs_err_c 5.45697e-12
-rel_err_1 1.39515e-16
-rel_err_2 3.72615e-32
-rel_err_c 5.45697e-12
