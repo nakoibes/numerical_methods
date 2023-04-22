@@ -23,7 +23,7 @@ double fi(double x, double *xi, int i, int len_xi) {
     return result;
 }
 
-double func(double x) {
+double f(double x) {
     return sin(x);
 }
 
@@ -82,7 +82,7 @@ void f_B(double *B, function<double(double)> y, double **random_args, double **a
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
             for (int q = 0; q < l; q++) {
-                B[i * (n - 1) + j] += (y(random_args[i][q]) * fi(random_args[i][q], args[i], j, n));
+                B[i * (n - 1) + j] += (f(random_args[i][q]) * fi(random_args[i][q], args[i], j, n));
             }
         }
     }
@@ -668,7 +668,6 @@ write_e(double *X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, do
 
 int main() {
     srand((unsigned int) time(nullptr));
-    function<double(double)> y = func;
 
     double a = -3.14;
     double b = 3.14;
