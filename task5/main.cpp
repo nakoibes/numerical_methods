@@ -54,7 +54,7 @@ double newton_cotes(double *x, int n, double len) {
     double h = len / 4.0;
     double sum = 0.0;
     for (int i = 0; i < n - 1; i++) {
-        sum += (7.0 * f(x[i]) + 32.0 * f(x[i] + h) + 12.0 * f(x[i] + 2 * h) + 32.0 * f(x[i] + 3 * h) +
+        sum += (7.0 * f(x[i]) + 32.0 * f(x[i] + h) + 12.0 * f(x[i] + 2.0 * h) + 32.0 * f(x[i] + 3.0 * h) +
                 7.0 * f(x[i + 1]));
     }
     return sum * 2.0 * h / 45.0;
