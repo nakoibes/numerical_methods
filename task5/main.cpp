@@ -7,7 +7,7 @@
 using namespace std;
 
 double f(double x) {
-    return pow(x,10)+1;
+    return pow(x, 10) + 1;
 }
 
 void f_even(double *x, int n, double a, double b) {
@@ -20,7 +20,7 @@ void f_even(double *x, int n, double a, double b) {
 }
 
 double i_func(double x) {
-    return 1.0/11.0*pow(x,11)+x;
+    return 1.0 / 11.0 * pow(x, 11) + x;
 }
 
 double rectangle(double *x, double h, int n) {
