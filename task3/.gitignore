@@ -1,0 +1,6 @@
+eigen
+cmake-build-debug
+CMakeLists.txt
+dots.txt
+errs.txt
+rand_errs.txt
