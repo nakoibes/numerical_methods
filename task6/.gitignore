@@ -2,3 +2,4 @@ CMakeLists.txt
 Residuals
 Xerrors
 eigen
+cmake-build-debug
