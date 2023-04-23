@@ -14,11 +14,11 @@ double fi(double x) {
     return -sin(PI * x);
 }
 
-double ksi0(double t) {
+double psi0(double t) {
     return t;
 }
 
-double ksi1(double t) {
+double psi1(double t) {
     return t;
 }
 
@@ -27,8 +27,8 @@ void init_u(double **u, double h, double tau, int n, int m) {
         u[0][i] = fi(i * h);
     }
     for (int i = 0; i < n; i++) {
-        u[i][0] = ksi0(i * tau);
-        u[i][m - 1] = ksi1(i * tau);
+        u[i][0] = psi0(i * tau);
+        u[i][m - 1] = psi1(i * tau);
     }
 }
 
@@ -43,8 +43,8 @@ void exp_sch(double **u, double h, double tau, int n, int m) {
 
 void write_d(double **u, int n, int m) {
     ofstream fout("dots.txt");
-    fout << n << endl;
     fout << m << endl;
+    fout << n << endl;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             fout << u[i][j] << " ";
@@ -55,8 +55,8 @@ void write_d(double **u, int n, int m) {
 }
 
 int main() {
-    int n = 3;
-    int m = 3;
+    int n = 1001;
+    int m = 11;
 
     double a = 0.0;
     double b = 1.0;
