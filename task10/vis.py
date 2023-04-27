@@ -15,7 +15,9 @@ if __name__ == '__main__':
 
     x, y = np.meshgrid(x, t)
 
-    plt.contourf(x, y, u)
+    levels = [i * 0.1 for i in range(-10, 11)]
+
+    plt.contourf(x, y, u, levels=levels)
     plt.title("Contour lines")
     plt.colorbar()
     plt.show()
