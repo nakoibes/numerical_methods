@@ -86,8 +86,8 @@ void exp_wei(double **u, double h, double tau, int n, int m, double sig) {
         fill_F(u, F, h, tau, i, sig, m - 2);
         prog(M, X, F, m - 2);
         for (int j = 1; j < m - 1; j++) {
-            u[i+1][j] = X[j];
-            cout << X[j-1] << " ";
+            u[i+1][j] = X[j-1];
+//            cout << X[j-1] << " ";
         }
         cout << endl;
     }
@@ -103,8 +103,8 @@ void exp_sch(double **u, double h, double tau, int n, int m) {
     }
 }
 
-void write_d(double **u, int n, int m) {
-    ofstream fout("dots.txt");
+void write_d(double **u, int n, int m,string filename) {
+    ofstream fout(filename);
     fout << m << endl;
     fout << n << endl;
     for (int i = 0; i < n; i++) {
@@ -117,7 +117,7 @@ void write_d(double **u, int n, int m) {
 }
 
 int main() {
-    int n = 301;
+    int n = 1001;
     int m = 11;
 
     double a = 0.0;
@@ -125,7 +125,7 @@ int main() {
     double t0 = 0.0;
     double T = 1.0;
 
-    double sig = 0.5;
+    double sig = 0.3;
 
     double h = (b - a) / (m - 1);
     double tau = (T - t0) / (n - 1);
@@ -144,15 +144,12 @@ int main() {
     init_u(u_exp, h, tau, n, m);
     init_u(u_wei, h, tau, n, m);
 
-//    for (int i = 0; i < n; i++) {
-//        for (int j = 0; j < m; j++) {
-//
-//        }
-//    }
-
     exp_sch(u_exp, h, tau, n, m);
-    exp_wei(u_wei, h, tau, n, m, 0.3);
-    write_d(u_exp, n, m);
+    exp_wei(u_wei, h, tau, n, m, sig);
+
+
+    write_d(u_exp, n, m,"dots1.txt");
+    write_d(u_wei, n, m,"dots2.txt");
 
 
     return 0;
