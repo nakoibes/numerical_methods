@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
 
 #define PI  3.14159265358979323846
 
@@ -21,6 +22,7 @@ double psi0(double t) {
 double psi1(double t) {
     return t;
 }
+
 
 void prog(double **M, double *Y, double *F, int n) {
     double A[n];
@@ -86,10 +88,10 @@ void exp_wei(double **u, double h, double tau, int n, int m, double sig) {
         fill_F(u, F, h, tau, i, sig, m - 2);
         prog(M, X, F, m - 2);
         for (int j = 1; j < m - 1; j++) {
-            u[i+1][j] = X[j-1];
+            u[i + 1][j] = X[j - 1];
 //            cout << X[j-1] << " ";
         }
-        cout << endl;
+//        cout << endl;
     }
 
 }
@@ -103,7 +105,7 @@ void exp_sch(double **u, double h, double tau, int n, int m) {
     }
 }
 
-void write_d(double **u, int n, int m,string filename) {
+void write_d(double **u, int n, int m, string filename) {
     ofstream fout(filename);
     fout << m << endl;
     fout << n << endl;
@@ -116,9 +118,144 @@ void write_d(double **u, int n, int m,string filename) {
     fout.close();
 }
 
+double calc_abs_err_1_M(double **M1, double **M2, int n, int m) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            result += abs(M1[i][j] - M2[i][2 * j]);
+        }
+    }
+    return result;
+}
+
+double calc_abs_err_2_M(double **M1, double **M2, int n, int m) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            result += pow(abs(M1[i][j] - M2[i][2 * j]), 2);
+        }
+    }
+    return sqrt(result);
+}
+
+double calc_abs_err_cheb_M(double **M1, double **M2, int n, int m) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (abs(M1[i][j] - M2[i][2 * j]) > result) {
+                result = abs(M1[i][j] - M2[i][2 * j]);
+            }
+        }
+    }
+    return result;
+}
+
+double calc_rel_err_1_M(double **M1, double **M2, int n, int m) {
+    double eps = 0.000000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            num += abs(M1[i][j] - M2[i][2 * j]);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            den += abs(M1[i][j]);
+        }
+    }
+    if (den < eps) {
+        den = 1.0;
+    }
+    return num / den;
+}
+
+double calc_rel_err_2_M(double **M1, double **M2, int n, int m) {
+    double eps = 0.000000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            num += pow(abs(M1[i][j] - M2[i][2 * j]), 2);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            den += pow(abs(M1[i][j]), 2);
+        }
+    }
+    if (den < eps) {
+        den = 1.0;
+    }
+    return sqrt(num) / sqrt(den);
+}
+
+double calc_rel_err_cheb_M(double **M1, double **M2, int n, int m) {
+    double eps = 0.000000001;
+    double num = 0.0;
+    double den = 0.0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (abs(M1[i][j] - M2[i][2 * j]) > num) {
+                num = abs(M1[i][j] - M2[i][2 * j]);
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (abs(M1[i][j]) > den) {
+                den = abs(M1[i][j]);
+            }
+        }
+    }
+    if (den < eps) {
+        den = 1.0;
+    }
+    return num / den;
+}
+
+void write_e(double **u_e_h, double **u_e_h2, double **u_w_h, double **u_w_h2, int m1, int m2, int n, string filename) {
+    ofstream fout(filename);
+    fout << fixed;
+    fout.precision(6);
+    fout << setw(15) << left << "Explicit scheme"
+         << endl;
+
+    fout << setw(15) << left << "abs_err_1"
+         << setw(15) << left << scientific << calc_abs_err_1_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "abs_err_2"
+         << setw(15) << left << calc_abs_err_2_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "abs_err_cheb"
+         << setw(15) << left << calc_abs_err_cheb_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_1"
+         << setw(15) << left << calc_rel_err_1_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_2"
+         << setw(15) << left << calc_rel_err_2_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_cheb"
+         << setw(15) << left << calc_rel_err_cheb_M(u_e_h, u_e_h2, n, m1) << endl
+         << setw(15) << left << "Wight scheme" << endl
+         << setw(15) << left << "abs_err_1"
+         << setw(15) << left << scientific << calc_abs_err_1_M(u_w_h, u_w_h2, n, m1) << endl
+         << setw(15) << left << "abs_err_2"
+         << setw(15) << left << calc_abs_err_2_M(u_w_h, u_w_h2, n, m1) << endl
+         << setw(15) << left << "abs_err_cheb"
+         << setw(15) << left << calc_abs_err_cheb_M(u_w_h, u_w_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_1"
+         << setw(15) << left << calc_rel_err_1_M(u_w_h, u_w_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_2"
+         << setw(15) << left << calc_rel_err_2_M(u_w_h, u_w_h2, n, m1) << endl
+         << setw(15) << left << "rel_err_cheb"
+         << setw(15) << left << calc_rel_err_cheb_M(u_w_h, u_w_h2, n, m1) << endl
+         << endl;
+}
+
 int main() {
     int n = 1001;
-    int m = 11;
+    int m1 = 11;
+    int m2 = 2 * m1 - 1;
 
     double a = 0.0;
     double b = 1.0;
@@ -127,29 +264,45 @@ int main() {
 
     double sig = 0.3;
 
-    double h = (b - a) / (m - 1);
+    double h = (b - a) / (m1 - 1);
+    double h2 = (b - a) / (m2 - 1);
     double tau = (T - t0) / (n - 1);
 
-    double **u_exp = new double *[n];
+    double **u_exp_h = new double *[n];
     for (int i = 0; i < n; i++) {
-        u_exp[i] = new double[m];
+        u_exp_h[i] = new double[m1];
+    }
+    double **u_exp_h2 = new double *[n];
+    for (int i = 0; i < n; i++) {
+        u_exp_h2[i] = new double[m2];
     }
 
-    double **u_wei = new double *[n];
+    double **u_wei_h = new double *[n];
     for (int i = 0; i < n; i++) {
-        u_wei[i] = new double[m];
+        u_wei_h[i] = new double[m1];
+    }
+    double **u_wei_h2 = new double *[n];
+    for (int i = 0; i < n; i++) {
+        u_wei_h2[i] = new double[m2];
     }
 
 
-    init_u(u_exp, h, tau, n, m);
-    init_u(u_wei, h, tau, n, m);
+    init_u(u_exp_h, h, tau, n, m1);
+    init_u(u_wei_h, h, tau, n, m1);
 
-    exp_sch(u_exp, h, tau, n, m);
-    exp_wei(u_wei, h, tau, n, m, sig);
+    init_u(u_exp_h2, h2, tau, n, m2);
+    init_u(u_wei_h2, h2, tau, n, m2);
 
+    exp_sch(u_exp_h, h, tau, n, m1);
+    exp_wei(u_wei_h, h, tau, n, m1, sig);
 
-    write_d(u_exp, n, m,"dots1.txt");
-    write_d(u_wei, n, m,"dots2.txt");
+    exp_sch(u_exp_h2, h2, tau, n, m2);
+    exp_wei(u_wei_h2, h2, tau, n, m2, sig);
+
+    write_d(u_exp_h, n, m1, "dots1.txt");
+    write_d(u_wei_h, n, m1, "dots2.txt");
+
+    write_e(u_exp_h, u_exp_h2, u_wei_h, u_wei_h2, m1, m2, n, "errs");
 
 
     return 0;
