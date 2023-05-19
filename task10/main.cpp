@@ -122,7 +122,7 @@ double calc_abs_err_1_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            result += abs(M1[i][j] - M2[i][2 * j]);
+            result += abs(M1[i][j] - M2[4*i][2 * j]);
         }
     }
     return result;
@@ -132,7 +132,7 @@ double calc_abs_err_2_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            result += pow(abs(M1[i][j] - M2[i][2 * j]), 2);
+            result += pow(abs(M1[i][j] - M2[4*i][2 * j]), 2);
         }
     }
     return sqrt(result);
@@ -142,8 +142,8 @@ double calc_abs_err_cheb_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            if (abs(M1[i][j] - M2[i][2 * j]) > result) {
-                result = abs(M1[i][j] - M2[i][2 * j]);
+            if (abs(M1[i][j] - M2[4*i][2 * j]) > result) {
+                result = abs(M1[i][j] - M2[4*i][2 * j]);
             }
         }
     }
@@ -156,7 +156,7 @@ double calc_rel_err_1_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            num += abs(M1[i][j] - M2[i][2 * j]);
+            num += abs(M1[i][j] - M2[4*i][2 * j]);
         }
     }
 
@@ -177,7 +177,7 @@ double calc_rel_err_2_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            num += pow(abs(M1[i][j] - M2[i][2 * j]), 2);
+            num += pow(abs(M1[i][j] - M2[4*i][2 * j]), 2);
         }
     }
 
@@ -198,8 +198,8 @@ double calc_rel_err_cheb_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            if (abs(M1[i][j] - M2[i][2 * j]) > num) {
-                num = abs(M1[i][j] - M2[i][2 * j]);
+            if (abs(M1[i][j] - M2[4*i][2 * j]) > num) {
+                num = abs(M1[i][j] - M2[4*i][2 * j]);
             }
         }
     }
@@ -253,9 +253,10 @@ void write_e(double **u_e_h, double **u_e_h2, double **u_w_h, double **u_w_h2, i
 }
 
 int main() {
-    int n = 1001;
+    int n1 = 1001;
     int m1 = 11;
     int m2 = 2 * m1 - 1;
+    int n2 = 4*n1-3;
 
     double a = 0.0;
     double b = 1.0;
@@ -266,44 +267,46 @@ int main() {
 
     double h = (b - a) / (m1 - 1);
     double h2 = (b - a) / (m2 - 1);
-    double tau = (T - t0) / (n - 1);
+    double tau = (T - t0) / (n1 - 1);
+    double tau2 = (T - t0) / (n2 - 1);
 
-    double **u_exp_h = new double *[n];
-    for (int i = 0; i < n; i++) {
+    double **u_exp_h = new double *[n1];
+    for (int i = 0; i < n1; i++) {
         u_exp_h[i] = new double[m1];
     }
-    double **u_exp_h2 = new double *[n];
-    for (int i = 0; i < n; i++) {
+    double **u_exp_h2 = new double *[n2];
+    for (int i = 0; i < n2; i++) {
         u_exp_h2[i] = new double[m2];
     }
 
-    double **u_wei_h = new double *[n];
-    for (int i = 0; i < n; i++) {
+    double **u_wei_h = new double *[n1];
+    for (int i = 0; i < n1; i++) {
         u_wei_h[i] = new double[m1];
     }
-    double **u_wei_h2 = new double *[n];
-    for (int i = 0; i < n; i++) {
+    double **u_wei_h2 = new double *[n2];
+    for (int i = 0; i < n2; i++) {
         u_wei_h2[i] = new double[m2];
     }
 
 
-    init_u(u_exp_h, h, tau, n, m1);
-    init_u(u_wei_h, h, tau, n, m1);
+    init_u(u_exp_h, h, tau, n1, m1);
+    init_u(u_wei_h, h, tau, n1, m1);
 
-    init_u(u_exp_h2, h2, tau, n, m2);
-    init_u(u_wei_h2, h2, tau, n, m2);
+    init_u(u_exp_h2, h2, tau2, n2, m2);
+    init_u(u_wei_h2, h2, tau2, n2, m2);
 
-    exp_sch(u_exp_h, h, tau, n, m1);
-    exp_wei(u_wei_h, h, tau, n, m1, sig);
+    exp_sch(u_exp_h, h, tau, n1, m1);
+    exp_wei(u_wei_h, h, tau, n1, m1, sig);
 
-    exp_sch(u_exp_h2, h2, tau, n, m2);
-    exp_wei(u_wei_h2, h2, tau, n, m2, sig);
+    exp_sch(u_exp_h2, h2, tau2, n2, m2);
+    exp_wei(u_wei_h2, h2, tau2, n2, m2, sig);
 
-    write_d(u_exp_h, n, m1, "dots1.txt");
-    write_d(u_wei_h, n, m1, "dots2.txt");
+    write_d(u_exp_h, n1, m1, "dots1.txt");
+    write_d(u_wei_h, n1, m1, "dots2.txt");
 
-    write_e(u_exp_h, u_exp_h2, u_wei_h, u_wei_h2, m1, m2, n, "errs");
+    write_e(u_exp_h, u_exp_h2, u_wei_h, u_wei_h2, m1, m2, n1, "errs");
 
+    system("python3 vis.py");
 
     return 0;
 }
