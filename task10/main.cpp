@@ -122,7 +122,7 @@ double calc_abs_err_1_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            result += abs(M1[i][j] - M2[4*i][2 * j]);
+            result += abs(M1[i][j] - M2[4 * i][2 * j]);
         }
     }
     return result;
@@ -132,7 +132,7 @@ double calc_abs_err_2_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            result += pow(abs(M1[i][j] - M2[4*i][2 * j]), 2);
+            result += pow(abs(M1[i][j] - M2[4 * i][2 * j]), 2);
         }
     }
     return sqrt(result);
@@ -142,8 +142,8 @@ double calc_abs_err_cheb_M(double **M1, double **M2, int n, int m) {
     double result = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            if (abs(M1[i][j] - M2[4*i][2 * j]) > result) {
-                result = abs(M1[i][j] - M2[4*i][2 * j]);
+            if (abs(M1[i][j] - M2[4 * i][2 * j]) > result) {
+                result = abs(M1[i][j] - M2[4 * i][2 * j]);
             }
         }
     }
@@ -156,7 +156,7 @@ double calc_rel_err_1_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            num += abs(M1[i][j] - M2[4*i][2 * j]);
+            num += abs(M1[i][j] - M2[4 * i][2 * j]);
         }
     }
 
@@ -177,7 +177,7 @@ double calc_rel_err_2_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            num += pow(abs(M1[i][j] - M2[4*i][2 * j]), 2);
+            num += pow(abs(M1[i][j] - M2[4 * i][2 * j]), 2);
         }
     }
 
@@ -198,8 +198,8 @@ double calc_rel_err_cheb_M(double **M1, double **M2, int n, int m) {
     double den = 0.0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            if (abs(M1[i][j] - M2[4*i][2 * j]) > num) {
-                num = abs(M1[i][j] - M2[4*i][2 * j]);
+            if (abs(M1[i][j] - M2[4 * i][2 * j]) > num) {
+                num = abs(M1[i][j] - M2[4 * i][2 * j]);
             }
         }
     }
@@ -256,14 +256,14 @@ int main() {
     int n1 = 1001;
     int m1 = 11;
     int m2 = 2 * m1 - 1;
-    int n2 = 4*n1-3;
+    int n2 = 4 * n1 - 3;
 
     double a = 0.0;
     double b = 1.0;
     double t0 = 0.0;
     double T = 1.0;
 
-    double sig = 0.3;
+    double sig = 0.5;
 
     double h = (b - a) / (m1 - 1);
     double h2 = (b - a) / (m2 - 1);
