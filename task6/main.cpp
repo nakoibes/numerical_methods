@@ -78,7 +78,7 @@ void f_A_G(double **A, double **A_G, int n, int m) {
     }
 }
 
-void f_B(double *B, function<double(double)> y, double **random_args, double **args, int l, int m, int k, int n) {
+void f_B(double *B, double **random_args, double **args, int l, int k, int n) {
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < n; j++) {
             for (int q = 0; q < l; q++) {
@@ -225,14 +225,14 @@ void gauss_LU(double **L, double **U, double *B, double *X, int m, int n) {
 void gauss_H(double **H, double **H_t, double *B, double *X, int m, int n) {
     double Y[m];
     double eps = 0.0000001;
-    g_s_H(H, B, m, n);
+    g_s_H(H_t, B, m, n);
     for (int i = 0; i < m; i++) {
-        Y[i] = B[i] / H[0][i];
+        Y[i] = B[i] / H_t[0][i];
     }
 
-    gauss_r(H_t, Y, m, n, eps);
+    gauss_r(H, Y, m, n, eps);
     for (int i = 0; i < m; i++) {
-        X[i] = Y[i] / H_t[0][i];
+        X[i] = Y[i] / H[0][i];
     }
 }
 
@@ -262,17 +262,11 @@ void LU(double **A, double **L, double **U, int m, int n) {
             U[i][j] = A[i][j];
             int i_h = j;
             int j_h = j + i;
-            int M;
-            if (i_h > j_h) {
-                M = i_h;
-            } else {
-                M = j_h;
-            }
+            int M = j_h;
             int st = M - n + 1;
             if (st < 0) {
                 st = 0;
             }
-
             for (int k = st; k < i_h; k++) {
                 int i_l = i_h - k;
                 int j_l = k;
@@ -285,12 +279,7 @@ void LU(double **A, double **L, double **U, int m, int n) {
             L[i][j] = A[i][j];
             int i_h = j + i;
             int j_h = j;
-            int M;
-            if (i_h > j_h) {
-                M = i_h;
-            } else {
-                M = j_h;
-            }
+            int M = i_h;
             int st = M - n + 1;
             if (st < 0) {
                 st = 0;
@@ -320,12 +309,7 @@ void holec(double **A, double **H, int m, int n) {
         for (int i = 0; i < n; i++) {
             int i_h = j;
             int j_h = j + i;
-            int M;
-            if (i_h > j_h) {
-                M = i_h;
-            } else {
-                M = j_h;
-            }
+            int M = j_h;
             int st = M - n + 1;
             if (st < 0) {
                 st = 0;
@@ -666,6 +650,12 @@ write_e(double *X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, do
     fout.close();
 }
 
+void init_ar(double* A,int n){
+    for (int i = 0; i < n; i++) {
+        A[i] = 0.0;
+    }
+}
+
 int main() {
     srand((unsigned int) time(nullptr));
 
@@ -726,35 +716,20 @@ int main() {
 
     double X_e[m];
     double X_g[m];
-    for (int i = 0; i < m; i++) {
-        X_g[i] = 0.0;
-    }
     double X_LU[m];
-    for (int i = 0; i < m; i++) {
-        X_LU[i] = 0.0;
-    }
     double X_hol[m];
-    for (int i = 0; i < m; i++) {
-        X_hol[i] = 0.0;
-    }
     double X_rel[m];
-    for (int i = 0; i < m; i++) {
-        X_rel[i] = 0.0;
-    }
     double X_conj[m];
-    for (int i = 0; i < m; i++) {
-        X_conj[i] = 0.0;
-    }
-
     double Y_rel[m];
-    for (int i = 0; i < m; i++) {
-        Y_rel[i] = 0.0;
-    }
-
     double Y_conj[m];
-    for (int i = 0; i < m; i++) {
-        Y_conj[i] = 0.0;
-    }
+
+    init_ar(X_g,m);
+    init_ar(X_LU,m);
+    init_ar(X_hol,m);
+    init_ar(X_rel,m);
+    init_ar(X_conj,m);
+    init_ar(Y_rel,m);
+    init_ar(Y_conj,m);
 
     double B_g[m];
     double B_LU[m];
@@ -789,13 +764,12 @@ int main() {
 
     A_E = f_A_E(A_g, m, n);
 
-    f_B(B, y, random_args, args, l, m, k, n);
+    f_B(B, random_args, args, l, k, n);
     copy_vec(B, B_g, m);
     copy_vec(B, B_LU, m);
     copy_vec(B, B_hol, m);
     B_E = f_B_E(B, m);
 
-    f_A_G(A, A_g, n, m);
     gauss(A_g, B_g, X_g, m, n);
 
     prep_L(L, m);
