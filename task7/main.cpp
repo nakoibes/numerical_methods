@@ -80,7 +80,7 @@ double df2dy_d(double x, double y, double h) {
     return (f2(x, y + h) - f1(x, y)) / h;
 }
 
-double newton(double *X0, double *X, double eps, bool con, bool dis, string o_str,bool sile) {
+double newton(double *X0, double *X, double eps, bool con, bool dis, string o_str, bool sile) {
     int i = 1;
     double h = 0.01;
     double x_p = X0[0];
@@ -123,13 +123,13 @@ double newton(double *X0, double *X, double eps, bool con, bool dis, string o_st
         if (abs(x_p - x_c) + abs(y_p - y_c) < eps) {
             X[0] = x_c;
             X[1] = y_c;
-            if(!sile) {
+            if (!sile) {
                 cout << o_str << " converged for " << i << " steps, start: " << X0[0] << " ; " << X0[1] << endl;
             }
             return i;
         }
         if (i == 5000) {
-            if(!sile) {
+            if (!sile) {
                 cout << "INFINITE LOOP" << endl << endl;
             }
             return 5000;
@@ -141,16 +141,17 @@ double newton(double *X0, double *X, double eps, bool con, bool dis, string o_st
     }
 }
 
-void root_a(double** XY,double* X01,double* X,double eps,int k,double s_x,double s_y){
+void root_a(double **XY, double *X01, double *X, double eps, int k, double s_x, double s_y) {
     for (int i = 0; i < k; i++) {
         for (int j = 0; j < k; j++) {
-            X01[0] = s_x + 1.0/k*i;
-            X01[1] = s_y + 1.0/k*j;
-            XY[i][j] = newton(X01, X, eps, false, true, "newton_d",true);
+            X01[0] = s_x + 1.0 / k * i;
+            X01[1] = s_y + 1.0 / k * j;
+            XY[i][j] = newton(X01, X, eps, false, true, "newton_d", true);
         }
     }
 }
-void write_d(double **XY1,double **XY2,int k) {
+
+void write_d(double **XY1, double **XY2, int k) {
     ofstream fout("dots.txt");
     fout << k << endl;
     for (int i = 0; i < k; i++) {
@@ -167,12 +168,13 @@ void write_d(double **XY1,double **XY2,int k) {
     }
     fout.close();
 }
+
 int main() {
     double eps = 0.000001;
     double X01[2];
     double X[2];
 
-    int k=100;
+    int k = 100;
 
     double x1 = -0.5;
     double y1 = 0.3;
@@ -200,35 +202,35 @@ int main() {
     cout << X[0] << endl << X[1] << endl;
 
     X01[0] = x1;
-    X01[1] =y1;
-    newton(X01, X, eps, false, false, "newton",false);
+    X01[1] = y1;
+    newton(X01, X, eps, false, false, "newton", false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = x2;
     X01[1] = y2;
-    newton(X01, X, eps, false, false, "newton",false);
+    newton(X01, X, eps, false, false, "newton", false);
     cout << X[0] << endl << X[1] << endl;
 
     X01[0] = x1;
     X01[1] = y1;
-    newton(X01, X, eps, true, false, "newton_c",false);
+    newton(X01, X, eps, true, false, "newton_c", false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = x2;
     X01[1] = y2;
-    newton(X01, X, eps, true, false, "newton_c",false);
+    newton(X01, X, eps, true, false, "newton_c", false);
     cout << X[0] << endl << X[1] << endl;
 
     X01[0] = x1;
     X01[1] = y1;
-    newton(X01, X, eps, false, true, "newton_d",false);
+    newton(X01, X, eps, false, true, "newton_d", false);
     cout << X[0] << endl << X[1] << endl;
     X01[0] = x2;
     X01[1] = y2;
-    newton(X01, X, eps, false, true, "newton_d",false);
+    newton(X01, X, eps, false, true, "newton_d", false);
     cout << X[0] << endl << X[1] << endl;
 
-    root_a(XY1,X01,X,eps,k,-1.1,-0.15);
-    root_a(XY2,X01,X,eps,k,0.6,0.6);
-    write_d(XY1,XY2,k);
+    root_a(XY1, X01, X, eps, k, -1.1, -0.15);
+    root_a(XY2, X01, X, eps, k, 0.6, 0.6);
+    write_d(XY1, XY2, k);
 
     for (int i = 0; i < k; i++) {
         delete[] XY1[i];
