@@ -32,7 +32,7 @@ void eil(double *Y1, double *Y2, double *X, int n, double h) {
 void eil_mod(double *Y1, double *Y2, double *X, int n, double h) {
     double Y1_[n];
     double Y2_[n];
-    double h2 = h/2.0;
+    double h2 = h / 2.0;
     for (int i = 1; i < n; i++) {
         Y1_[i] = Y1[i - 1] + h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
         Y2_[i] = Y2[i - 1] + h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
@@ -103,17 +103,17 @@ void ru_ku2(double *Y1, double *Y2, double *X, int n, double h, double al) {
 }
 
 void ru_ku4(double *Y1, double *Y2, double *X, int n, double h) {
-    double h2 = h/2.0;
+    double h2 = h / 2.0;
     for (int i = 1; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        double k2 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2*k1, Y2[i - 1] + h2*k1);
-        double k3 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2*k2, Y2[i - 1] + h2*k2);
-        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        double k2 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2 * k1, Y2[i - 1] + h2 * k1);
+        double k3 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2 * k2, Y2[i - 1] + h2 * k2);
+        double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h * k3, Y2[i - 1] + h * k3);
         Y1[i] = Y1[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
         k1 = h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        k2 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2*k1, Y2[i - 1] + h2*k1);
-        k3 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2*k2, Y2[i - 1] + h2*k2);
-        k4 = h * f2(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
+        k2 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2 * k1, Y2[i - 1] + h2 * k1);
+        k3 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2 * k2, Y2[i - 1] + h2 * k2);
+        k4 = h * f2(X[i - 1] + h, Y1[i - 1] + h * k3, Y2[i - 1] + h * k3);
         Y2[i] = Y2[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
     }
 }
@@ -608,7 +608,7 @@ int main() {
     adams(Y1_a_2h, Y2_a_2h, X_2h, n2, h2);
 
     ruro(Y1_e_h2, Y1_e_h, E_main, 1, n1);
-    cout << "eil err " << scientific <<E_main[n1 - 1] << endl;
+    cout << "eil err " << scientific << E_main[n1 - 1] << endl;
     ruro(Y1_e_m_h2, Y1_e_m_h, E_main, 2, n1);
     cout << "eil_per err " << E_main[n1 - 1] << endl;
     ruro(Y1_rk2_h2, Y1_rk2_h, E_main, 2, n1);
