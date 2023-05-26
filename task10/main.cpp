@@ -252,7 +252,7 @@ void write_e(double **u_e_h, double **u_e_h2, double **u_w_h, double **u_w_h2, i
 
 int main() {
     int m1 = 11;
-    int n1 = m1*m1*2+1;
+    int n1 = m1 * m1 * 2 + 1;
     int m2 = 2 * m1 - 1;
     int n2 = 4 * n1 - 3;
 
