@@ -133,34 +133,6 @@ void gauss_s(double **A, double *B, int m, int n, double eps) {
 
 }
 
-//void gauss_s_(double **Aup, double **Adown, double *B, int m, int n, double eps) {
-//    for (int i_h = 0; i_h < m - 1; i_h++) {
-//        for (int j_h = 1; i_h < n; j_h++) {
-//            int fi = i_h + n;
-//            if (fi > m) {
-//                fi = m;
-//            }
-//            int i1 = j_h;
-//            int j1 = i_h;
-//            double koef = -Adown[i1][j1] / Adown[0][j1];
-//            Adown[i1][j1] = 0;
-//            for (int k = i_h + 1; k < fi; k++) {
-//                if (i_h + j_h >= k) {
-//                    i1 = i_h+j_h-k;
-//                    j1 = k;
-//                    Adown[i1][j1] += A[i][k] * koef;
-//                }
-//                else{
-//                    i1 = k-i_h-j_h;
-//                    j1= i_h+j_h;
-//                }
-//
-//                B[i + j] += B[i] * koef;
-//            }
-//        }
-//    }
-//}
-
 void gauss_r(double **A, double *B, int m, int n, double eps) {
     for (int al = m - 1; al > 0; al--) {
         for (int be = 1; be < n; be++) {
@@ -371,12 +343,6 @@ void mat_vec(double **A, double *B, double *res, int m, int n) {
                 res[i] += A[j - i][i] * B[j];
             }
         }
-    }
-}
-
-void vec_dif(double *A, double *B, double *res, int m) {
-    for (int i = 0; i < m; i++) {
-        res[i] = A[i] - B[i];
     }
 }
 
@@ -650,7 +616,7 @@ write_e(double *X_e, double *X_g, double *X_LU, double *X_hol, double *X_rel, do
     fout.close();
 }
 
-void init_ar(double* A,int n){
+void init_ar(double *A, int n) {
     for (int i = 0; i < n; i++) {
         A[i] = 0.0;
     }
@@ -723,13 +689,13 @@ int main() {
     double Y_rel[m];
     double Y_conj[m];
 
-    init_ar(X_g,m);
-    init_ar(X_LU,m);
-    init_ar(X_hol,m);
-    init_ar(X_rel,m);
-    init_ar(X_conj,m);
-    init_ar(Y_rel,m);
-    init_ar(Y_conj,m);
+    init_ar(X_g, m);
+    init_ar(X_LU, m);
+    init_ar(X_hol, m);
+    init_ar(X_rel, m);
+    init_ar(X_conj, m);
+    init_ar(Y_rel, m);
+    init_ar(Y_conj, m);
 
     double B_g[m];
     double B_LU[m];
@@ -811,7 +777,7 @@ int main() {
         delete[] H_t[i];
         delete[] U[i];
     }
-    for (int i = 0; i < 2*n-1; i++) {
+    for (int i = 0; i < 2 * n - 1; i++) {
         delete[] A_g[i];
     }
     delete[] args;
