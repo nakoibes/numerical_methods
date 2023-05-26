@@ -29,14 +29,6 @@ void eil(double *Y1, double *Y2, double *X, int n, double h) {
     }
 }
 
-double norm_1(double* vec,int n){
-    double res = 0.0;
-    for (int i = 0; i < n; i++) {
-        res+=abs(vec[i]);
-    }
-    return res;
-}
-
 void eil_mod(double *Y1, double *Y2, double *X, int n, double h) {
     double Y1_[n];
     double Y2_[n];
