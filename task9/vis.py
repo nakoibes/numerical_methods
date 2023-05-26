@@ -15,7 +15,6 @@ if __name__ == '__main__':
     plt.grid()
     plt.show()
 
-
     plt.xlim(x[0], x[len(x) - 1])
     plt.plot(x, y1_sec, color="green", linewidth=0.5, label='Secant')
     plt.plot(x, y1_new, color="red", linewidth=0.5, label='Newton')

@@ -202,8 +202,7 @@ void shoot(double *Y, double *X, int n, double h) {
         }
         i++;
     }
-
-//    int m =10;
+//    int m =10;//выбор области в которой будем решать уравнение
 //    double T[m];
 //    for (int i = 1; i < m; i++) {
 //        T[i] = -5 + i;
@@ -405,9 +404,7 @@ void write_errs(double *Y_diff_h, double *Y_shoo_h, double *Y_sec_h, double *Y_n
 
     fout << setw(15) << left << "error"
          << setw(15) << left << "y step h;h/2"
-         //         << setw(15) << left << "y step h;2h"
          //         << setw(15) << left << "y' step h;h/2"
-         //         << setw(15) << left << "y' step h;2h"
          << endl;
 
     fout << "Finite difference" << endl;
@@ -518,7 +515,7 @@ int main() {
     double b = 1.0;
     double ya = 0.0;
     double yb = 0.0;
-    int n1 = 11;
+    int n1 = 51;
     int n2 = 2 * n1 - 1;
     double h1 = (b - a) / (n1 - 1);
     double h2 = (b - a) / (n2 - 1);
