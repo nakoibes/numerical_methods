@@ -40,11 +40,12 @@ double norm_1(double* vec,int n){
 void eil_mod(double *Y1, double *Y2, double *X, int n, double h) {
     double Y1_[n];
     double Y2_[n];
+    double h2 = h/2.0;
     for (int i = 1; i < n; i++) {
         Y1_[i] = Y1[i - 1] + h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
         Y2_[i] = Y2[i - 1] + h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        Y1[i] = Y1[i - 1] + h * (f1(X[i - 1], Y1[i - 1], Y2[i - 1]) + f1(X[i], Y1_[i], Y2_[i])) / 2.0;
-        Y2[i] = Y2[i - 1] + h * (f2(X[i - 1], Y1[i - 1], Y2[i - 1]) + f2(X[i], Y1_[i], Y2_[i])) / 2.0;
+        Y1[i] = Y1[i - 1] + h2 * (f1(X[i - 1], Y1[i - 1], Y2[i - 1]) + f1(X[i], Y1_[i], Y2_[i]));
+        Y2[i] = Y2[i - 1] + h2 * (f2(X[i - 1], Y1[i - 1], Y2[i - 1]) + f2(X[i], Y1_[i], Y2_[i]));
     }
 }
 
@@ -110,15 +111,16 @@ void ru_ku2(double *Y1, double *Y2, double *X, int n, double h, double al) {
 }
 
 void ru_ku4(double *Y1, double *Y2, double *X, int n, double h) {
+    double h2 = h/2.0;
     for (int i = 1; i < n; i++) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        double k2 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
-        double k3 = h * f1(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        double k2 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2*k1, Y2[i - 1] + h2*k1);
+        double k3 = h * f1(X[i - 1] + h2, Y1[i - 1] + h2*k2, Y2[i - 1] + h2*k2);
         double k4 = h * f1(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
         Y1[i] = Y1[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
         k1 = h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
-        k2 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k1 / 2.0, Y2[i - 1] + h*k1 / 2.0);
-        k3 = h * f2(X[i - 1] + h / 2.0, Y1[i - 1] + h*k2 / 2.0, Y2[i - 1] + h*k2 / 2.0);
+        k2 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2*k1, Y2[i - 1] + h2*k1);
+        k3 = h * f2(X[i - 1] + h2, Y1[i - 1] + h2*k2, Y2[i - 1] + h2*k2);
         k4 = h * f2(X[i - 1] + h, Y1[i - 1] + h*k3, Y2[i - 1] + h*k3);
         Y2[i] = Y2[i - 1] + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
     }
@@ -141,11 +143,11 @@ void adams(double *Y1, double *Y2, double *X, int n, double h) {
         double k1 = h * f1(X[i - 1], Y1[i - 1], Y2[i - 1]);
         double k2 = h * f1(X[i - 2], Y1[i - 2], Y2[i - 2]);
         double k3 = h * f1(X[i - 3], Y1[i - 3], Y2[i - 3]);
-        Y1[i] = Y1[i - 1] + (23 * k1 - 16 * k2 + 5 * k3) / 12.0;
+        Y1[i] = Y1[i - 1] + (23.0 * k1 - 16.0 * k2 + 5.0 * k3) / 12.0;
         k1 = h * f2(X[i - 1], Y1[i - 1], Y2[i - 1]);
         k2 = h * f2(X[i - 2], Y1[i - 2], Y2[i - 2]);
         k3 = h * f2(X[i - 3], Y1[i - 3], Y2[i - 3]);
-        Y2[i] = Y2[i - 1] + (23 * k1 - 16 * k2 + 5 * k3) / 12.0;
+        Y2[i] = Y2[i - 1] + (23.0 * k1 - 16.0 * k2 + 5.0 * k3) / 12.0;
     }
 }
 
@@ -240,7 +242,7 @@ void write_errs1(double *Y1_e_h, double *Y2_e_h, double *Y1_e_m_h, double *Y2_e_
                  double *Y1_rk4_h2, double *Y2_rk4_h2, double *Y1_a_h2, double *Y2_a_h2,
                  double *Y1_e_2h, double *Y2_e_2h, double *Y1_e_m_2h, double *Y2_e_m_2h,
                  double *Y1_rk2_2h, double *Y2_rk2_2h, double *Y1_rk4_2h, double *Y2_rk4_2h,
-                 double *Y1_a_2h, double *Y2_a_2h, int n1, int n2, int n3, string filename) {
+                 double *Y1_a_2h, double *Y2_a_2h, int n1, int n2, string filename) {
 
     double Y1_e_h2_s[n1];
     double Y1_e_m_h2_s[n1];
@@ -513,7 +515,7 @@ int main() {
     double X_h2[n3];
     double X_2h[n2];
 
-    double E_eil[n1];
+    double E_main[n1];
 
     double Y1_e_h[n1];
     double Y2_e_h[n1];
@@ -613,12 +615,21 @@ int main() {
     ru_ku4(Y1_rk4_2h, Y2_rk4_2h, X_2h, n2, h2);
     adams(Y1_a_2h, Y2_a_2h, X_2h, n2, h2);
 
-    ruro(Y1_e_h2,Y1_e_h,E_eil,1,n1);
-    cout << "eil err " << E_eil[n1-1] << endl;
+    ruro(Y1_e_h2, Y1_e_h, E_main, 1, n1);
+    cout << "eil err " << scientific <<E_main[n1 - 1] << endl;
+    ruro(Y1_e_m_h2, Y1_e_m_h, E_main, 2, n1);
+    cout << "eil_per err " << E_main[n1 - 1] << endl;
+    ruro(Y1_rk2_h2, Y1_rk2_h, E_main, 2, n1);
+    cout << "rk2 err " << E_main[n1 - 1] << endl;
+    ruro(Y1_rk4_h2, Y1_rk4_h, E_main, 4, n1);
+    cout << "rk4 err " << E_main[n1 - 1] << endl;
+    ruro(Y1_a_h2, Y1_a_h, E_main, 3, n1);
+    cout << "adams err " << E_main[n1 - 1] << endl;
+
 
     write_errs1(Y1_e_h, Y2_e_h, Y1_e_m_h, Y2_e_m_h, Y1_rk2_h, Y2_rk2_h, Y1_rk4_h, Y2_rk4_h, Y1_a_h, Y2_a_h, Y1_e_h2,
                 Y2_e_h2, Y1_e_m_h2, Y2_e_m_h2, Y1_rk2_h2, Y2_rk2_h2, Y1_rk4_h2, Y2_rk4_h2, Y1_a_h2, Y2_a_h2, Y1_e_2h,
-                Y2_e_2h, Y1_e_m_2h, Y2_e_m_2h, Y1_rk2_2h, Y2_rk2_2h, Y1_rk4_2h, Y2_rk4_2h, Y1_a_2h, Y2_a_2h, n1, n2, n3,
+                Y2_e_2h, Y1_e_m_2h, Y2_e_m_2h, Y1_rk2_2h, Y2_rk2_2h, Y1_rk4_2h, Y2_rk4_2h, Y1_a_2h, Y2_a_2h, n1, n2,
                 "errors");
 
     write_f(Y1_e_h, Y1_e_m_h, Y1_rk2_h, Y1_rk4_h, Y1_a_h,

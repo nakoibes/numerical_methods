@@ -24,6 +24,7 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid()
     plt.show()
+    plt.xlim(x[0], x[len(x) - 1])
     plt.plot(x, y2_e, color="orange", linewidth=0.5, label='eil')
     plt.plot(x, y2_e_m, color="red", linewidth=0.5, label='eil mod')
     plt.plot(x, y2_rk2, color="black", linewidth=0.5, label='rk2')
