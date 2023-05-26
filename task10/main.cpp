@@ -89,9 +89,7 @@ void exp_wei(double **u, double h, double tau, int n, int m, double sig) {
         prog(M, X, F, m - 2);
         for (int j = 1; j < m - 1; j++) {
             u[i + 1][j] = X[j - 1];
-//            cout << X[j-1] << " ";
         }
-//        cout << endl;
     }
 
 }
@@ -253,8 +251,8 @@ void write_e(double **u_e_h, double **u_e_h2, double **u_w_h, double **u_w_h2, i
 }
 
 int main() {
-    int n1 = 1001;
     int m1 = 11;
+    int n1 = m1*m1*2+1;
     int m2 = 2 * m1 - 1;
     int n2 = 4 * n1 - 3;
 

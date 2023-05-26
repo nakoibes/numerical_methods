@@ -10,8 +10,8 @@ if __name__ == '__main__':
     h = 1 / (m - 1)
     tau = 1 / (n - 1)
 
-    x = np.arange(0, 1 + h, h)
-    t = np.arange(0, 1 + tau, tau)
+    x = [i * h for i in range(m)]
+    t = [i * tau for i in range(n)]
 
     x, y = np.meshgrid(x, t)
 
@@ -30,8 +30,8 @@ if __name__ == '__main__':
     h = 1 / (m - 1)
     tau = 1 / (n - 1)
 
-    x = np.arange(0, 1 + h, h)
-    t = np.arange(0, 1 + tau, tau)
+    x = [i * h for i in range(m)]
+    t = [i * tau for i in range(n)]
 
     x, y = np.meshgrid(x, t)
 
@@ -41,4 +41,3 @@ if __name__ == '__main__':
     plt.contourf(x, y, u, levels=levels)
     plt.colorbar()
     plt.show()
-
