@@ -496,7 +496,7 @@ int main() {
     double b = 1.0;
     double y0 = 0.0;
     double y0_s = 0.0;
-    int n1 = 101;
+    int n1 = 21;
     int n2 = (n1 - 1) / 2 + 1;
     int n3 = (n1 - 1) * 2 + 1;
     double h1 = (b - a) / (n1 - 1);

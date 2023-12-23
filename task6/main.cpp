@@ -628,7 +628,7 @@ int main() {
     double a = -3.14;
     double b = 3.14;
 
-    double iter_par = 0.000001;
+    double iter_par = 1.0e-6;
 
     int k = 3;
     double w = 1.1;

@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     z = (y - x ** 2) ** 2 + (x - np.exp(y) + 2) ** 2
 
-    levels = [0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 5, 10, 20]
+    levels = [0.05, 0.1, 0.2, 0.5, 1.5, 20]
 
     plt.contourf(x, y, z, levels=levels)
     plt.title("Contour lines")

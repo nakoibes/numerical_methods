@@ -116,15 +116,15 @@ double f1(double x, double y1, double y2) {
 }
 
 double f2(double x, double y1, double y2) {
-    return y2 * exp(x) + y1 * x * x + sin(x);
+    return y2 * exp(x+1) + y1 * sin(x-1) + sqrt(x);
 }
 
 double f2_2(double x, double y1, double y2) {
-    return y2 * y2 * exp(x) + y1 * y1 * x * x + sin(x);
+    return y2 * y2 * exp(x+1) + y1 * y1 * sin(x-1) + sqrt(x);
 }
 
 double g(double x, double y1, double y2, double Y, double U) {
-    return 2 * y1 * x * x * Y + 2 * y2 * exp(x) * U;
+    return 2 * y1 * sin(x-1) * Y + 2 * y2 * exp(x+1) * U;
 }
 
 
@@ -514,8 +514,8 @@ int main() {
     double a = 0.0;
     double b = 1.0;
     double ya = 0.0;
-    double yb = 0.0;
-    int n1 = 51;
+    double yb = 0.1;
+    int n1 = 21;
     int n2 = 2 * n1 - 1;
     double h1 = (b - a) / (n1 - 1);
     double h2 = (b - a) / (n2 - 1);
@@ -554,18 +554,18 @@ int main() {
     f_even_args(X_h, n1, a, b);
     f_even_args(X_h2, n1, a, b);
 
-    f_diff(Y_ra_h, X_h, h1, n1);
-    shoot(Y_shoo_h, X_h, n1, h1);
+//    f_diff(Y_ra_h, X_h, h1, n1);
+//    shoot(Y_shoo_h, X_h, n1, h1);
 
-    newton(Y_sec_h, X_h, n1, h1, true);
+//    newton(Y_sec_h, X_h, n1, h1, true);
     newton(Y_new_h, X_h, n1, h1, false);
 
 
-    f_diff(Y_ra_h2, X_h2, h2, n2);
-    shoot(Y_shoo_h2, X_h2, n2, h2);
+//    f_diff(Y_ra_h2, X_h2, h2, n2);
+//    shoot(Y_shoo_h2, X_h2, n2, h2);
 
-    newton(Y_sec_h2, X_h2, n2, h2, true);
-    newton(Y_new_h2, X_h2, n2, h2, false);
+//    newton(Y_sec_h2, X_h2, n2, h2, true);
+//    newton(Y_new_h2, X_h2, n2, h2, false);
 
     write_errs(Y_ra_h, Y_shoo_h, Y_sec_h, Y_new_h, Y_ra_h2, Y_shoo_h2, Y_sec_h2, Y_new_h2, n1, "errors");
 
